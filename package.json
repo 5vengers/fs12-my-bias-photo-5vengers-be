@@ -11,12 +11,25 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "prisma": "^7.8.0"
+    "jsonwebtoken": "^9.0.3",
+    "prisma": "^6.19.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/5vengers/fs12-my-bias-photo-5vengers-be.git"
+  },
+  "bugs": {
+    "url": "https://github.com/5vengers/fs12-my-bias-photo-5vengers-be/issues"
+  },
+  "homepage": "https://github.com/5vengers/fs12-my-bias-photo-5vengers-be#readme"
 }
