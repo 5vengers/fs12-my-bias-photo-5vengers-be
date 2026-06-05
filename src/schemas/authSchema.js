@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const signupSchema = z.object({
+export const registerSchema = z.object({
   email: z
     .string({ required_error: '이메일은 필수입니다.' })
     .email('이메일 형식이 올바르지 않습니다.'),
