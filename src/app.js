@@ -1,13 +1,19 @@
-import express from "express";
+import 'dotenv/config';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import authController from './controllers/authController.js';
+import { authenticate, errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "서버 기본 메시지입니다.",
-  });
-});
+app.use(express.json());
+app.use(cookieParser());
 
-app.listen(3000, () => {
-  console.log("서버가 3000번 포트에서 실행 중입니다.");
-});
+app.post('/api/auth/register', authController.register);
+app.post('/api/auth/login', authController.login);
+app.post('/api/auth/logout', authenticate, authController.logout);
+
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
