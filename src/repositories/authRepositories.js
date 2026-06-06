@@ -18,6 +18,10 @@ const findRefreshToken = (token) =>
 const deleteRefreshToken = (token) =>
   prisma.refreshToken.deleteMany({ where: { token } });
 
+// 로그인 시 기존 토큰 전체 삭제
+const deleteRefreshTokenByUserId = (userId) =>
+  prisma.refreshToken.deleteMany({ where: { userId } });
+
 export default {
   findUserByEmail,
   findUserByNickname,
@@ -25,4 +29,5 @@ export default {
   saveRefreshToken,
   findRefreshToken,
   deleteRefreshToken,
+  deleteRefreshTokenByUserId,
 };
