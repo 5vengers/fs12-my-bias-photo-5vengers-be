@@ -4,7 +4,7 @@ import {
   DuplicateEmailError,
   DuplicateNicknameError,
   UnauthorizedError,
-} from '../middlewares/errorHandler.js';
+} from '../errors/AppError.js';
 import { signAccessToken, signRefreshToken } from '../libs/jwt.js';
 
 const SALT_ROUNDS = 10;
@@ -45,6 +45,7 @@ const login = async ({ email, password }) => {
   const refreshToken = signRefreshToken(payload);
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  await authRepositories.deleteRefreshTokenByUserId(user.id);
   await authRepositories.saveRefreshToken(user.id, refreshToken, expiresAt);
 
   return {
