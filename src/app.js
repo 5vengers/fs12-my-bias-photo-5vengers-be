@@ -4,7 +4,7 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import cors from 'cors';
 
 const app = express();
-// 라우터 등록 전에 404 처리 미들웨어 등록
+// 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
 app.use(cors());
 app.use(express.json());
 
