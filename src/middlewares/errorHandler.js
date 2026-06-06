@@ -1,56 +1,11 @@
 import { Prisma } from '@prisma/client';
 import { verifyAccessToken } from '../libs/jwt.js';
+import {
+  AppError,
+  UnauthorizedError,
+  ERROR_CODES,
+} from '../errors/AppError.js';
 
-// ─── 에러 코드 ───────────────────────────────────────
-export const ERROR_CODES = {
-  //400
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-
-  //401
-  UNAUTHORIZED: 'UNAUTHORIZED',
-
-  //409
-  DUPLICATE_EMAIL: 'DUPLICATE_EMAIL',
-  DUPLICATE_NICKNAME: 'DUPLICATE_NICKNAME',
-
-  //500
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-};
-
-// ─── 에러 클래스 ──────────────────────────────────────
-export class AppError extends Error {
-  constructor(status, code, message) {
-    super(message);
-    this.status = status;
-    this.code = code;
-  }
-}
-
-export class DuplicateEmailError extends AppError {
-  constructor() {
-    super(409, ERROR_CODES.DUPLICATE_EMAIL, '이미 가입된 이메일입니다.');
-  }
-}
-
-export class DuplicateNicknameError extends AppError {
-  constructor() {
-    super(409, ERROR_CODES.DUPLICATE_NICKNAME, '이미 사용 중인 닉네임입니다.');
-  }
-}
-
-export class UnauthorizedError extends AppError {
-  constructor(message = '인증에 실패했습니다.') {
-    super(401, ERROR_CODES.UNAUTHORIZED, message);
-  }
-}
-
-export class ValidationError extends AppError {
-  constructor(message = '입력값을 다시 확인해주세요.') {
-    super(400, ERROR_CODES.VALIDATION_ERROR, message);
-  }
-}
-
-// ─── 미들웨어 ─────────────────────────────────────────
 export const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
 
