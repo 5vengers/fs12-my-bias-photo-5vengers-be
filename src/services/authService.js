@@ -5,15 +5,10 @@ import {
   DuplicateEmailError,
   DuplicateNicknameError,
   UnauthorizedError,
-} from '../errors/AppError.js';
+} from '../middlewares/errorHandler.js';
+import { signAccessToken, signRefreshToken } from '../libs/jwt.js';
 
 const SALT_ROUNDS = 10;
-
-const signAccessToken = (payload) =>
-  jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
-
-const signRefreshToken = (payload) =>
-  jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
 const register = async ({ email, password, nickname }) => {
   const existingEmail = await authRepositories.findUserByEmail(email);
