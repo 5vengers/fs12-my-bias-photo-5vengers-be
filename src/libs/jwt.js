@@ -1,4 +1,3 @@
-// src/libs/jwt.js 교체
 import jwt from 'jsonwebtoken';
 
 const ACCESS_EXPIRES_IN = '15m';

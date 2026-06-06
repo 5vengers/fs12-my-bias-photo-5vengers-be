@@ -16,7 +16,7 @@ const findRefreshToken = (token) =>
   prisma.refreshToken.findUnique({ where: { token } });
 
 const deleteRefreshToken = (token) =>
-  prisma.refreshToken.delete({ where: { token } });
+  prisma.refreshToken.deleteMany({ where: { token } });
 
 export default {
   findUserByEmail,
