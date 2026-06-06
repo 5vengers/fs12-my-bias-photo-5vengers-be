@@ -1,4 +1,4 @@
-import { ERROR_CODES } from './errorHandler';
+import { ERROR_CODES } from './errorHandler.js';
 
 export const validate = (schema) => (req, res, next) => {
   const result = schema.safeParse(req.body);
