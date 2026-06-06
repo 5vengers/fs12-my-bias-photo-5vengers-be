@@ -5,7 +5,7 @@ import { AppError } from '../errors/appError.js';
 export const notFoundHandler = (req, res, next) => {
   // 공통 에러 미들웨어에서 처리할 404 에러 생성
   const error = new AppError(
-    `요청한 경로를 찾을 수 없습니다: ${req.method} ${req.originalUrl} `,
+    `요청한 경로를 찾을 수 없습니다: ${req.method} ${req.originalUrl}`,
     404,
     ERROR_CODES.NOT_FOUND,
   );
