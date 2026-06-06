@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import authController from './controllers/authController.js';
-import { authenticate, errorHandler } from './middlewares/errorHandler.js';
+import { errorHandler } from './middlewares/errorHandler.js';
 import { validate } from './middlewares/validate.js';
 import { loginSchema, registerSchema } from './schemas/authSchema.js';
 
@@ -17,7 +17,7 @@ app.post(
   authController.register,
 );
 app.post('/api/auth/login', validate(loginSchema), authController.login);
-app.post('/api/auth/logout', authenticate, authController.logout);
+app.post('/api/auth/logout', authController.logout);
 
 app.use(errorHandler);
 
