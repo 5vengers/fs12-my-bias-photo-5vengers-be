@@ -13,7 +13,10 @@ const saveRefreshToken = (userId, token, expiresAt) =>
   });
 
 const findRefreshToken = (token) =>
-  prisma.refreshToken.findUnique({ where: { token } });
+  prisma.refreshToken.findUnique({
+    where: { token },
+    include: { user: true },
+  });
 
 const deleteRefreshToken = (token) =>
   prisma.refreshToken.deleteMany({ where: { token } });
