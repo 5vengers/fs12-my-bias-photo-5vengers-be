@@ -53,4 +53,28 @@ const logout = async (req, res, next) => {
   }
 };
 
-export default { register, login, logout };
+const refresh = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies;
+    const { accessToken, refreshToken: newRefreshToken } =
+      await authService.refresh(refreshToken);
+
+    // Rotation - 새 refreshToken 쿠키 갱신
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: REFRESH_TOKEN_MAX_AGE,
+    });
+
+    res.json({
+      success: true,
+      message: '토큰이 재발급되었습니다.',
+      data: { accessToken },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { register, login, logout, refresh };
