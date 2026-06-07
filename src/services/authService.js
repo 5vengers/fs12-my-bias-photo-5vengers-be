@@ -73,8 +73,10 @@ const logout = async (refreshToken) => {
 };
 
 const refresh = async (refreshToken) => {
-  // 토큰 없으면 바로 에러
-  if (!refreshToken) throw new ExpiredTokenError();
+  // 토큰 없으면 바로 에러 -> 로그인 전
+  if (!refreshToken) {
+    throw new UnauthorizedError('로그인이 필요합니다.');
+  }
 
   // DB에서 토큰 존재 여부 확인
   const stored = await authRepository.findRefreshToken(refreshToken);
@@ -90,8 +92,13 @@ const refresh = async (refreshToken) => {
   let payload;
   try {
     payload = verifyRefreshToken(refreshToken);
-  } catch {
+  } catch (err) {
     await authRepository.deleteRefreshToken(refreshToken);
+
+    if (err.name === 'TokenExpiredError') {
+      throw new ExpiredTokenError();
+    }
+
     throw new InvalidTokenError();
   }
 
