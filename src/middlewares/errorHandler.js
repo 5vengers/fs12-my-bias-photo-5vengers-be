@@ -1,5 +1,4 @@
 import { Prisma } from '@prisma/client';
-import { AppError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
 /**
