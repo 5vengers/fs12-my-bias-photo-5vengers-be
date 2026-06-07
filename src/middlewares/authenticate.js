@@ -1,5 +1,9 @@
 import { verifyAccessToken } from '../libs/jwt.js';
-import { UnauthorizedError, ExpiredTokenError } from '../errors/appError.js';
+import {
+  UnauthorizedError,
+  ExpiredTokenError,
+  InvalidTokenError,
+} from '../errors/appError.js';
 
 export const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -15,6 +19,6 @@ export const authenticate = (req, res, next) => {
     if (err.name === 'TokenExpiredError') {
       return next(new ExpiredTokenError());
     }
-    next(new UnauthorizedError('유효하지 않은 토큰입니다.'));
+    next(new InvalidTokenError('유효하지 않은 토큰입니다.'));
   }
 };
