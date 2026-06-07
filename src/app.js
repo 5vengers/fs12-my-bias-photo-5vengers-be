@@ -2,6 +2,7 @@ import express from 'express';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import cors from 'cors';
+import { marketRouter } from './routes/marketRouter.js';
 
 const app = express();
 // 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
@@ -11,6 +12,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: '서버가 정상적으로 실행 중입니다.' });
 });
+
+app.use('api', marketRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
