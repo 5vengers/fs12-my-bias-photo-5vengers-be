@@ -5,6 +5,10 @@ const findUserByEmail = (email) => prisma.user.findUnique({ where: { email } });
 const findUserByNickname = (nickname) =>
   prisma.user.findUnique({ where: { nickname } });
 
+// Google OAuth 유저 조회 
+const findUserByProviderId = (providerId) =>
+  prisma.user.findFirst({ where: { providerId } });
+
 const createUser = (data) => prisma.user.create({ data });
 
 const saveRefreshToken = (userId, token, expiresAt) =>
@@ -21,13 +25,13 @@ const findRefreshToken = (token) =>
 const deleteRefreshToken = (token) =>
   prisma.refreshToken.deleteMany({ where: { token } });
 
-// 로그인 시 기존 토큰 전체 삭제
 const deleteRefreshTokenByUserId = (userId) =>
   prisma.refreshToken.deleteMany({ where: { userId } });
 
 export default {
   findUserByEmail,
   findUserByNickname,
+  findUserByProviderId,
   createUser,
   saveRefreshToken,
   findRefreshToken,
