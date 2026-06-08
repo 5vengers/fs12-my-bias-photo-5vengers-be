@@ -30,6 +30,14 @@ const deleteRefreshToken = (token) =>
 const deleteRefreshTokenByUserId = (userId) =>
   prisma.refreshToken.deleteMany({ where: { userId } });
 
+// 기존 토큰 삭제 + 새 토큰 저장을 단일 트랜잭션으로 처리
+// delete -> save 사이에 서버 장애 발생 시 사용자가 강제 로그아웃되는 문제 방지
+const replaceRefreshToken = (userId, token, expiresAt) =>
+  prisma.$transaction([
+    prisma.refreshToken.deleteMany({ where: { userId } }),
+    prisma.refreshToken.create({ data: { userId, token, expiresAt } }),
+  ]);
+
 export default {
   findUserByEmail,
   findUserByNickname,
@@ -39,4 +47,5 @@ export default {
   findRefreshToken,
   deleteRefreshToken,
   deleteRefreshTokenByUserId,
+  replaceRefreshToken,
 };
