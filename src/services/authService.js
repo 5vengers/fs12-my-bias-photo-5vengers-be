@@ -19,6 +19,13 @@ import { REFRESH_TOKEN_EXPIRES_MS } from '../constants/tokenConfig.js';
 
 const SALT_ROUNDS = 10;
 
+const MAX_NICKNAME_LENGTH = 20;
+const UUID_SUFFIX_LENGTH = 8;
+const NICKNAME_SEPARATOR_LENGTH = 1; // '_'
+
+const NICKNAME_PREFIX_LENGTH =
+  MAX_NICKNAME_LENGTH - UUID_SUFFIX_LENGTH - NICKNAME_SEPARATOR_LENGTH;
+
 // 토큰 발급 + 저장 공통 함수 (login, oauthLogin, refresh에서 재사용)
 // replaceRefreshToken으로 delete, save를 단일 트랜잭션으로 처리
 const issueTokens = async (userId) => {
@@ -141,17 +148,25 @@ const findOrCreateGoogleUser = async ({ email, nickname, providerId }) => {
   }
 
   // 2. 같은 이메일로 LOCAL 계정이 있는 경우 -> 충돌 (409)
-  // GOOGLE 계정은 허용 
+  // GOOGLE 계정은 허용
   const emailUser = await authRepository.findUserByEmail(email);
   if (emailUser && emailUser.provider === 'LOCAL') {
     throw new OAuthConflictError();
   }
 
-  // 3. 닉네임 중복 처리 — 충돌 시 randomUUID suffix로 유니크 닉네임 생성
+  // 3. 닉네임 중복 처리
+  // Google 프로필 닉네임을 최대 길이(20자)로 정규화
+  const normalizedNickname = nickname.slice(0, MAX_NICKNAME_LENGTH);
+
+  // 닉네임 충돌 시 UUID suffix를 붙여 유니크 닉네임 생성
   // nickname 최대 11자 + '_' + uuid 8자 = 최대 20자 (로컬 가입 최대치와 동일)
-  let finalNickname = nickname;
+  let finalNickname = normalizedNickname;
+
   while (await authRepository.findUserByNickname(finalNickname)) {
-    finalNickname = `${nickname.slice(0, 11)}_${randomUUID().slice(0, 8)}`;
+    finalNickname = `${normalizedNickname.slice(
+      0,
+      NICKNAME_PREFIX_LENGTH,
+    )}_${randomUUID().slice(0, UUID_SUFFIX_LENGTH)}`;
   }
 
   // 4. 신규 Google 유저 생성
