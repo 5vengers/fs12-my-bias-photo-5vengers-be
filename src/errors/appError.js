@@ -99,3 +99,16 @@ export class OAuthError extends AppError {
     super(message, 401, ERROR_CODES.OAUTH_ERROR);
   }
 }
+
+/**
+ * Google OAuth 이메일이 기존 LOCAL 계정과 충돌하는 경우 발생하는 에러
+ * 인증 실패가 아닌 리소스 충돌이므로 409 사용
+ * HTTP Status: 409 Conflict
+ */
+export class OAuthConflictError extends AppError {
+  constructor(
+    message = '해당 이메일로 이미 가입된 계정이 있습니다. 이메일로 로그인해주세요.',
+  ) {
+    super(message, 409, ERROR_CODES.OAUTH_CONFLICT);
+  }
+}
