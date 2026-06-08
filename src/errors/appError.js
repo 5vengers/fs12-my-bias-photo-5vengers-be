@@ -87,3 +87,15 @@ export class DuplicateNicknameError extends AppError {
     super('이미 사용 중인 닉네임입니다.', 409, ERROR_CODES.DUPLICATE_NICKNAME);
   }
 }
+
+/**
+ * Google OAuth 인증 처리 중 발생하는 에러
+ * - 이미 이메일/비밀번호로 가입된 계정과 이메일 충돌
+ * - Google 인증 자체 실패 (사용자 취소, Google 서버 오류 등)
+ * HTTP Status: 401 Unauthorized
+ */
+export class OAuthError extends AppError {
+  constructor(message = 'Google 로그인에 실패했습니다.') {
+    super(message, 401, ERROR_CODES.OAUTH_ERROR);
+  }
+}
