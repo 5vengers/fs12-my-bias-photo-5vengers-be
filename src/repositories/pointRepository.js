@@ -1,4 +1,4 @@
-import prisma from '../prisma';
+import prisma from '../config/prisma.js';
 
 const findByUserId = async (userId) => {
   prisma.userPoint.findUnique({
