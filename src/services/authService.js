@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 import authRepository from '../repositories/authRepository.js';
@@ -111,11 +112,18 @@ const refresh = async (refreshToken) => {
 
   // [2차 검증] JWT 서명 검증
   // JWT 검증 목적: DB에 저장됐더라도 서명이 위조된 토큰 차단
+  let payload;
   try {
-    verifyRefreshToken(refreshToken);
+    payload = verifyRefreshToken(refreshToken);
   } catch (err) {
     await authRepository.deleteRefreshToken(refreshToken);
     if (err.name === 'TokenExpiredError') throw new ExpiredTokenError();
+    throw new InvalidTokenError();
+  }
+
+  // JWT 페이로드의 userId와 DB의 userId 교차 검증
+  if (payload.userId !== stored.userId) {
+    await authRepository.deleteRefreshToken(refreshToken);
     throw new InvalidTokenError();
   }
 
@@ -181,7 +189,10 @@ const findOrCreateGoogleUser = async ({ email, nickname, providerId }) => {
     });
     return { user: newUser, isNewUser: true };
   } catch (err) {
-    if (err?.code === 'P2002') {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err?.code === 'P2002'
+    ) {
       throw new OAuthError(
         '일시적인 오류가 발생했습니다. 다시 로그인해주세요.',
       );
