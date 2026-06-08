@@ -5,9 +5,11 @@ const findUserByEmail = (email) => prisma.user.findUnique({ where: { email } });
 const findUserByNickname = (nickname) =>
   prisma.user.findUnique({ where: { nickname } });
 
-// Google OAuth 유저 조회 
+// Google OAuth 유저 조회
 const findUserByProviderId = (providerId) =>
-  prisma.user.findFirst({ where: { providerId } });
+  prisma.user.findUnique({
+    where: { provider_providerId: { provider: 'GOOGLE', providerId } },
+  });
 
 const createUser = (data) => prisma.user.create({ data });
 
