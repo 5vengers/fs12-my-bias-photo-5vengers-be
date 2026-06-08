@@ -22,6 +22,17 @@ app.get('/', (req, res) => {
   res.json({ message: '서버가 정상적으로 실행 중입니다.' });
 });
 
+app.post(
+  '/api/auth/register',
+  validate(registerSchema),
+  authController.register,
+);
+app.post('/api/auth/login', validate(loginSchema), authController.login);
+app.post('/api/auth/logout', authenticate, authController.logout);
+app.post('/api/auth/refresh', authController.refresh);
+
+app.use('api', marketRouter);
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 
