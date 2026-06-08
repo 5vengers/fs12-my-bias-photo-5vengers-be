@@ -11,7 +11,7 @@ export const marketRepository = {
   findMarketItemById: async (itemId) => {
     return await prisma.marketItem.findUnique({
       where: {
-        id: Number(itemId),
+        id: itemId,
       },
     });
   },
@@ -26,14 +26,31 @@ export const marketRepository = {
   //판매 정보 수정
   updateMarketItem: async (itemId, item) => {
     return await prisma.marketItem.update({
-      where: { id: Number(itemId) },
+      where: { id: itemId },
       data: item,
     });
   },
   //판매 글 삭제
   deleteMarketItem: async (itemId) => {
     return await prisma.marketItem.delete({
-      where: { id: Number(itemId) },
+      where: { id: itemId },
+    });
+  },
+
+  //내 카드 조회 (마이프로필과 로직 중복시 삭제 예정)
+  findMyCard: async (myCardId) => {
+    return await prisma.myCard.findUnique({
+      where: { id: myCardId },
+    });
+  },
+
+  //내 판매 카드 수량 조회
+  findActiveMarketItems: async (myCardId) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        myCardId: myCardId,
+        status: 'SELLING',
+      },
     });
   },
 };
