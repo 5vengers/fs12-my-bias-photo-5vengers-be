@@ -8,6 +8,8 @@ import { authenticate } from './middlewares/authenticate.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import pointController from './controllers/pointController.js';
+import cors from 'cors';
+import { marketRouter } from './routes/marketRouter.js';
 
 const app = express();
 
@@ -22,6 +24,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+
+app.use('api', marketRouter);
+
+app.use('api', marketRouter);
 
 // 포인트 조회 API
 app.get('/api/points/me', authenticate, pointController.getMyPoint);
