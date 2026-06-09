@@ -8,6 +8,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { validate } from './middlewares/validate.js';
 import { loginSchema, registerSchema } from './schemas/authSchema.js';
+import pointController from './controllers/pointController.js';
 import cors from 'cors';
 import { marketRouter } from './routes/marketRouter.js';
 
@@ -33,6 +34,12 @@ app.post('/api/auth/refresh', authController.refresh);
 
 app.use('api', marketRouter);
 
+app.use('api', marketRouter);
+
+// 포인트 조회 API
+app.get('/api/points/me', authenticate, pointController.getMyPoint);
+
+// 라우터 등록 후, 404 Not Found 처리 미들웨어와 에러 처리 미들웨어 등록
 app.use(notFoundHandler);
 app.use(errorHandler);
 

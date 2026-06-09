@@ -12,6 +12,9 @@ export const ERROR_CODES = {
   INTERNAL_ERROR: 'INTERNAL_ERROR', // 예상하지 못한 서버 내부 오류
   NOT_FOUND: 'NOT_FOUND', // 요청한 API 경로를 찾을 수 없음
 
+  // 포인트 관련 에러 코드
+  POINTS_NOT_FOUND: 'POINTS_NOT_FOUND', // 사용자 포인트 정보가 존재하지 않음
+
   MARKET_LISTING_NOT_FOUND: 'MARKET_LISTING_NOT_FOUND', // 카드를 찾을 수 없을 때 (404)
   PHOTO_CARD_ALREADY_LISTED: 'PHOTO_CARD_ALREADY_LISTED', // 이미 등록된 카드일 때 (409)
   CANNOT_BUY_OWN_PHOTO_CARD: 'CANNOT_BUY_OWN_PHOTO_CARD', // 본인 카드 구매 시도 시 (409)
