@@ -10,4 +10,7 @@ export const ERROR_CODES = {
 
   INTERNAL_ERROR: 'INTERNAL_ERROR', // 예상하지 못한 서버 내부 오류
   NOT_FOUND: 'NOT_FOUND', // 요청한 API 경로를 찾을 수 없음
+
+  // 포인트 관련 에러 코드
+  POINTS_NOT_FOUND: 'POINTS_NOT_FOUND', // 사용자 포인트 정보가 존재하지 않음
 };
