@@ -1,11 +1,11 @@
 import pointRepository from '../repositories/pointRepository.js';
-import { PointNotFoundError } from '../errors/appError.js';
+import { PointsNotFoundError } from '../errors/appError.js';
 
 const getMyPoint = async (userId) => {
   const userPoint = await pointRepository.findByUserId(userId);
 
   if (!userPoint) {
-    throw new PointNotFoundError();
+    throw new PointsNotFoundError();
   }
 
   return {

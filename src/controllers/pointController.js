@@ -12,3 +12,5 @@ const getMyPoint = async (req, res, next) => {
     next(err);
   }
 };
+
+export default { getMyPoint };
