@@ -70,10 +70,6 @@ const refresh = async (req, res, next) => {
   }
 };
 
-/**
- * passport wiring은 authRouter에서 처리 완료 (req.oauthPayload 주입됨)
- * 이 함수는 토큰 발급과 응답 포맷팅만 담당
- */
 const googleCallback = async (req, res, next) => {
   try {
     const { user, isNewUser } = req.oauthPayload;
