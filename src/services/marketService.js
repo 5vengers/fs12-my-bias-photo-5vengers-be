@@ -113,7 +113,7 @@ export const marketService = {
     return await marketRepository.updateMarketItem(marketItemId, updateData);
   },
 
-  deleteMarketItem: async (marketItemId, currentUserId) => {
+  deleteMarketItem: async (currentUserId, marketItemId) => {
     const marketItem = await marketRepository.findMarketItemById(marketItemId);
     if (!marketItem) {
       throw new AppError(

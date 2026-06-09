@@ -4,6 +4,7 @@ import { marketController } from '../controllers/marketController.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { validate } from '../middlewares/validate.js';
 import { createMarketItemSchema } from '../schemas/marketSchema.js';
+import { authenticate } from '../middlewares/authenticate.js';
 
 const router = express.Router();
 
@@ -15,8 +16,8 @@ router.get(
 );
 router.post(
   '/market/items',
-  validate(createMarketItemSchema),
   authenticate,
+  validate(createMarketItemSchema),
   asyncHandler(marketController.createMarketItem),
 );
 router.patch(
