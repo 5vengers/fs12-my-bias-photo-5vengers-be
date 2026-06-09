@@ -8,6 +8,12 @@ export const ERROR_CODES = {
   DUPLICATE_EMAIL: 'DUPLICATE_EMAIL', // 이메일 중복 검증
   DUPLICATE_NICKNAME: 'DUPLICATE_NICKNAME', // 닉네임 중복 검증
 
+  OAUTH_ERROR: 'OAUTH_ERROR', // OAuth 인증 처리 중 발생한 에러
+  OAUTH_CONFLICT: 'OAUTH_CONFLICT', // OAuth 이메일이 기존 LOCAL 계정과 충돌
+
   INTERNAL_ERROR: 'INTERNAL_ERROR', // 예상하지 못한 서버 내부 오류
   NOT_FOUND: 'NOT_FOUND', // 요청한 API 경로를 찾을 수 없음
+
+  // 포인트 관련 에러 코드
+  POINTS_NOT_FOUND: 'POINTS_NOT_FOUND', // 사용자 포인트 정보가 존재하지 않음
 };
