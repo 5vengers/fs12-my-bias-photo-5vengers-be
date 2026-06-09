@@ -112,3 +112,10 @@ export class OAuthConflictError extends AppError {
     super(message, 409, ERROR_CODES.OAUTH_CONFLICT);
   }
 }
+
+// MARK: 포인트 관련 에러 클래스 추가
+export class PointsNotFoundError extends AppError {
+  constructor() {
+    super('포인트 정보를 찾을 수 없습니다.', 404, ERROR_CODES.POINTS_NOT_FOUND);
+  }
+}
