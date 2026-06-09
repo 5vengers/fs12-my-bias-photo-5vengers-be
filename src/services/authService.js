@@ -27,6 +27,8 @@ const NICKNAME_SEPARATOR_LENGTH = 1; // '_'
 const NICKNAME_PREFIX_LENGTH =
   MAX_NICKNAME_LENGTH - UUID_SUFFIX_LENGTH - NICKNAME_SEPARATOR_LENGTH;
 
+const MAX_NICKNAME_ATTEMPTS = 5;
+
 // 토큰 발급 + 저장 공통 함수 (login, oauthLogin, refresh에서 재사용)
 // replaceRefreshToken으로 delete, save를 단일 트랜잭션으로 처리
 const issueTokens = async (userId) => {
@@ -170,11 +172,14 @@ const findOrCreateGoogleUser = async ({ email, nickname, providerId }) => {
   // nickname 최대 11자 + '_' + uuid 8자 = 최대 20자 (로컬 가입 최대치와 동일)
   let finalNickname = normalizedNickname;
 
+  let attempts = 0;
+
   while (await authRepository.findUserByNickname(finalNickname)) {
-    finalNickname = `${normalizedNickname.slice(
-      0,
-      NICKNAME_PREFIX_LENGTH,
-    )}_${randomUUID().slice(0, UUID_SUFFIX_LENGTH)}`;
+    if (attempts >= MAX_NICKNAME_ATTEMPTS) {
+      throw new OAuthError('닉네임 생성에 실패했습니다. 다시 시도해주세요.');
+    }
+    finalNickname = `${normalizedNickname.slice(0, NICKNAME_PREFIX_LENGTH)}_${randomUUID().slice(0, UUID_SUFFIX_LENGTH)}`;
+    attempts++;
   }
 
   // 4. 신규 Google 유저 생성
