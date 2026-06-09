@@ -75,16 +75,39 @@ reviews:
         - 컨트롤러는 요청/응답 처리에만 집중하고, 비즈니스 로직은 서비스 레이어로 위임했는지
         - DB 쿼리·외부 API 호출이 컨트롤러에 직접 작성되어 있지 않은지
 
-        [에러 처리]
-        - 모든 async 핸들러에 try-catch 또는 asyncHandler 래퍼가 적용되어 있는지
-        - 에러를 next(err)로 전달해 중앙 에러 핸들러가 처리하도록 하는지
-        - 적절한 HTTP 상태 코드를 사용하는지
-          (200 OK / 201 Created / 400 Bad Request / 401 Unauthorized /
-           403 Forbidden / 404 Not Found / 409 Conflict / 500 Internal Server Error)
+        [에러 처리 — 프로젝트 컨벤션]
+        - 모든 async 핸들러가 try-catch 없이 asyncHandler로 래핑되어 있는지
+          (try-catch를 컨트롤러에 직접 작성하는 것은 컨벤션 위반)
+        - 에러는 반드시 next(err)로 전달하고 있는지 — 컨트롤러에서 직접 에러 응답 금지
+        - 도메인 에러는 new Error() 대신 해당 도메인 AppError 서브클래스로 throw하는지
+          (예: AuthError, PhotoCardError, MarketError 등)
+        - 아래 HTTP Status ↔ ErrorCode 매핑을 준수하는지:
+            400 VALIDATION_ERROR     : 입력값 검증 실패 (Zod)
+            400 INVALID_IMAGE_FILE   : 지원하지 않는 이미지 파일
+            401 UNAUTHORIZED         : 인증되지 않은 사용자
+            401 INVALID_CREDENTIALS  : 로그인 정보 불일치
+            403 FORBIDDEN            : 접근 권한 없음
+            403 NOT_PHOTO_CARD_OWNER : 포토카드 소유자가 아님
+            404 USER_NOT_FOUND       : 사용자를 찾을 수 없음
+            404 PHOTO_CARD_NOT_FOUND : 포토카드를 찾을 수 없음
+            404 MARKET_LISTING_NOT_FOUND   : 판매 등록된 포토카드 없음
+            404 EXCHANGE_REQUEST_NOT_FOUND : 교환 요청 없음
+            409 DUPLICATE_EMAIL            : 이미 사용 중인 이메일
+            409 DUPLICATE_NICKNAME         : 이미 사용 중인 닉네임
+            409 PHOTO_CARD_ALREADY_LISTED  : 이미 판매 등록된 포토카드
+            409 INSUFFICIENT_POINT         : 보유 포인트 부족
+            409 INSUFFICIENT_STOCK         : 구매 가능 수량 부족
+            409 CANNOT_BUY_OWN_PHOTO_CARD  : 본인 등록 포토카드 구매 불가
+            409 EXCHANGE_ALREADY_REQUESTED : 이미 요청한 교환
+            409 EXCHANGE_ALREADY_COMPLETED : 이미 완료된 교환
+            500 INTERNAL_ERROR             : 서버 내부 오류
 
-        [응답]
-        - 응답 구조가 프로젝트 전체에서 일관된 포맷을 따르는지 ({ success, data, message })
-        - 민감한 정보(비밀번호 해시, 내부 스택 트레이스 등)가 응답에 포함되지 않는지
+        [응답 포맷 — 프로젝트 컨벤션]
+        - 실패 응답은 반드시 { success: false, code, message } 형태인지
+          (success/data/message 혼용 또는 code 필드 누락은 컨벤션 위반)
+        - message는 개발자 디버깅용이며, 사용자에게 노출되는 문자열을 담지 않는지
+        - 운영 환경에서 stack trace가 응답에 포함되지 않는지
+        - 민감한 정보(비밀번호 해시 등)가 응답에 포함되지 않는지
 
     # ── 3. 서비스 레이어 ──────────────────────────────────────
     - path: '{services,src/services}/**/*.js'
@@ -96,8 +119,18 @@ reviews:
         - HTTP 의존성(req, res)이 서비스에 혼입되어 있지 않은지 — 서비스는 프레임워크 독립적이어야 함
         - 트랜잭션이 필요한 여러 DB 작업을 하나의 트랜잭션으로 묶었는지
 
-        [에러]
-        - 비즈니스 예외를 커스텀 에러 클래스로 throw하는지 (예: NotFoundError, ConflictError)
+        [에러 — 프로젝트 컨벤션]
+        - 비즈니스 예외를 반드시 도메인별 AppError 서브클래스로 throw하는지
+          new Error() 직접 사용 금지. 아래 도메인 분류를 따르는지:
+            AuthError     : 로그인, 회원가입, 인증 실패, 중복 이메일/닉네임
+            PhotoCardError: 포토카드 생성, 수정, 삭제, 상세 조회
+            MarketError   : 마켓 등록, 판매 목록, 판매 상태
+            PurchaseError : 포토카드 구매, 재고 부족, 포인트 부족
+            ExchangeError : 교환 요청, 수락/거절, 완료 상태
+            PointError    : 포인트 조회, 랜덤 포인트 획득
+        - 에러 코드가 대문자 스네이크 케이스(UPPER_SNAKE_CASE)인지
+        - 같은 HTTP Status라도 사용자 대응이 다르면 다른 code를 사용하는지
+        - 반대로 사용자 대응이 동일한 케이스를 불필요하게 세분화하지 않는지
         - 외부 서비스 실패에 대한 폴백·재시도 로직이 있는지
 
     # ── 4. Zod 스키마 ─────────────────────────────────────────
@@ -126,18 +159,36 @@ reviews:
       instructions: |
         미들웨어를 리뷰할 때 아래 사항을 확인해주세요.
 
+        [asyncHandler — 프로젝트 컨벤션]
+        - asyncHandler는 아래 구조를 유지하는지:
+            const asyncHandler = (handler) => async (req, res, next) => {
+              try { await handler(req, res, next); } catch (err) { next(err); }
+            };
+        - 모든 비동기 컨트롤러·라우트 핸들러가 asyncHandler로 감싸져 있는지
+        - asyncHandler 내부에서 별도 try-catch를 중복 작성하지 않는지
+
+        [errorHandler — 프로젝트 컨벤션]
+        - 전역 에러 미들웨어가 아래 순서로 처리하는지:
+            1) Prisma Error (P2002 중복, P2003 외래키 등 DB 에러)
+            2) AppError (도메인 에러 — statusCode, code, message 보유)
+            3) 기타 예상치 못한 에러 → INTERNAL_ERROR / 500 반환
+        - 에러 미들웨어 시그니처가 반드시 (err, req, res, next) 4개 인수인지
+          (3개 인수이면 Express가 일반 미들웨어로 인식해 에러 처리 안 됨)
+        - 실패 응답이 반드시 { success: false, code, message } 형태인지
+        - 운영 환경에서 stack trace를 응답에 포함하지 않는지
+
         [인증·인가]
         - JWT 검증 시 서명(signature) 및 만료(exp) 모두 확인하는지
         - 토큰이 Authorization 헤더 외의 안전하지 않은 경로에서 추출되지 않는지
-        - 미들웨어 실패 시 반드시 next(err) 또는 응답 종료를 하는지 (무한 대기 방지)
+        - 인증 실패 시 UNAUTHORIZED, 인가 실패 시 FORBIDDEN code를 사용하는지
 
         [검증 미들웨어 (Zod)]
         - req.body / req.params / req.query를 각각 분리된 스키마로 검증하는지
         - safeParse를 사용해 예외 없이 에러를 처리하는지
+        - 검증 실패 시 VALIDATION_ERROR code와 400 상태 코드를 반환하는지
         - 검증 통과 후 파싱된 데이터를 req.validated 등 별도 프로퍼티에 저장해 원본 오염을 방지하는지
 
         [공통]
-        - 에러 핸들링 미들웨어의 시그니처가 (err, req, res, next) 4개 인수인지
         - CORS 설정이 허용 오리진을 화이트리스트로 관리하는지 (* 사용 금지)
         - 요청 로깅에 민감 정보(Authorization 헤더, 비밀번호)가 포함되지 않는지
 
@@ -168,16 +219,33 @@ reviews:
         - 민감 설정(DB 비밀번호, JWT 시크릿 등)이 코드에 직접 포함되어 있지 않은지
         - 환경별(development / staging / production) 설정 분기가 명확한지
 
-    # ── 8. 테스트 ─────────────────────────────────────────────
-    - path: '**/*.{test,spec}.js'
+    # ── 8. AppError / 에러 클래스 ────────────────────────────
+    - path: '{errors,src/errors}/**/*.js'
       instructions: |
-        테스트 코드를 리뷰할 때 아래 사항을 확인해주세요.
+        AppError 및 도메인 에러 클래스를 리뷰할 때 아래 사항을 확인해주세요.
 
-        - 테스트 설명(describe/it)이 한국어로 명확하게 작성되었는지
-        - 정상 케이스 외 에러 케이스, 경계값 케이스가 포함되어 있는지
-        - Zod 스키마 테스트 시 유효한 입력·무효한 입력·경계값을 모두 커버하는지
-        - DB 호출은 모킹하거나 테스트 DB를 사용하는지 (운영 DB 접근 금지)
-        - 각 테스트가 독립적이며 실행 순서에 영향 받지 않는지
+        [클래스 계층 — 프로젝트 컨벤션]
+        - 모든 커스텀 에러가 AppError를 최상위로 상속하는지:
+            AppError → AuthError / PhotoCardError / MarketError /
+                       PurchaseError / ExchangeError / PointError
+        - AppError가 statusCode, code, message 세 필드를 반드시 포함하는지
+        - 각 도메인 에러 클래스가 아래 도메인-코드 분류를 따르는지:
+            AuthError     : UNAUTHORIZED, INVALID_CREDENTIALS,
+                            DUPLICATE_EMAIL, DUPLICATE_NICKNAME
+            PhotoCardError: PHOTO_CARD_NOT_FOUND, INVALID_IMAGE_FILE,
+                            NOT_PHOTO_CARD_OWNER
+            MarketError   : MARKET_LISTING_NOT_FOUND, PHOTO_CARD_ALREADY_LISTED,
+                            CANNOT_BUY_OWN_PHOTO_CARD
+            PurchaseError : INSUFFICIENT_POINT, INSUFFICIENT_STOCK
+            ExchangeError : EXCHANGE_REQUEST_NOT_FOUND, EXCHANGE_ALREADY_REQUESTED,
+                            EXCHANGE_ALREADY_COMPLETED
+            PointError    : POINT_REWARD_UNAVAILABLE, POINT_REWARD_ALREADY_CLAIMED
+
+        [에러 코드 설계 기준]
+        - 에러 코드는 대문자 스네이크 케이스(UPPER_SNAKE_CASE)인지
+        - 도메인 이름이나 상황이 드러나도록 구체적으로 작성되어 있는지
+        - 사용자 대응이 동일한데 불필요하게 코드를 세분화하지 않았는지
+        - 새 에러 코드 추가 시 HTTP Status 매핑이 함께 정의되어 있는지
 
   # ── 전체 공통 지침 ────────────────────────────────────────
   instructions: |
@@ -189,6 +257,8 @@ reviews:
     - 상수(불변값): UPPER_SNAKE_CASE
     - 라우트 경로: kebab-case (예: /user-profiles)
     - DB 컬럼·테이블: snake_case
+    - prisma 필드명: camelCase
+    - prisma 모델명: PascalCase
 
     ### 코드 품질
     - console.log / console.error 직접 사용 금지 — 로거(winston, pino 등) 사용
