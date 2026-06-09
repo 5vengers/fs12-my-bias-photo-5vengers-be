@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import passport from 'passport';
+import passport from '../config/passport.js';
 import authController from '../controllers/authController.js';
 import { googleCallbackHandler } from '../middlewares/oauthHandler.js';
 import { validate } from '../middlewares/validate.js';
@@ -22,6 +22,7 @@ router.get(
   passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
+    state: true,
   }),
 );
 
