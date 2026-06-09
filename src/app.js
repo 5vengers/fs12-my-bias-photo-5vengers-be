@@ -5,11 +5,9 @@ import cookieParser from 'cookie-parser';
 import passport from './config/passport.js';
 import authRouter from './routes/authRouter.js';
 import pointRouter from './routes/pointRouter.js';
+import marketRouter from './routes/marketRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import pointController from './controllers/pointController.js';
-import cors from 'cors';
-import { marketRouter } from './routes/marketRouter.js';
 
 const app = express();
 
