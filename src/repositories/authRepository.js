@@ -24,7 +24,6 @@ const createUser = (data) =>
 const findRefreshToken = (token) =>
   prisma.refreshToken.findUnique({
     where: { token },
-    include: { user: true },
   });
 
 const deleteRefreshToken = (token) =>
