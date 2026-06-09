@@ -1,10 +1,10 @@
 import prisma from '../config/prisma.js';
 
 const findByUserId = async (userId) => {
-  prisma.userPoint.findUnique({
+  return await prisma.userPoint.findUnique({
     where: { userId },
     select: {
-      points: true,
+      point: true,
     },
   });
 };
