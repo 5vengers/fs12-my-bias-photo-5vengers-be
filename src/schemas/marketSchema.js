@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const createMarketItemSchema = z.object({
-  my_card_id: z.coerce.number({
+  myCardId: z.coerce.number({
     required_error: '등록할 카드 ID가 필요합니다.',
   }),
   quantity: z.coerce.number().positive('판매할 수량은 1장 이상이어야 합니다.'),

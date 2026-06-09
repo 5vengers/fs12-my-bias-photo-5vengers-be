@@ -122,6 +122,14 @@ export const marketService = {
         ERROR_CODES.NOT_FOUND,
       );
     }
+    if (marketItem.status === 'DELETED') {
+      throw new AppError(
+        '이미 삭제된 판매글입니다.',
+        400,
+        ERROR_CODES.BAD_REQUEST,
+      );
+    }
+
     if (currentUserId !== marketItem.sellerId) {
       throw new AppError('삭제 권한이 없습니다.', 403, ERROR_CODES.FORBIDDEN);
     }
