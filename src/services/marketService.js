@@ -66,7 +66,7 @@ export const marketService = {
         ERROR_CODES.VALIDATION_ERROR,
       );
     }
-    return marketRepository.createMarketItem(userId, itemData);
+    return marketRepository.createMarketItem({ ...itemData, sellerId: userId });
   },
 
   updateMarketItem: async (currentUserId, marketItemId, updateData) => {
@@ -79,7 +79,7 @@ export const marketService = {
       );
     }
     //본인 확인
-    if (currentUserId !== marketItem.seller_id) {
+    if (currentUserId !== marketItem.sellerId) {
       throw new AppError(
         '작성자 수정 권한이 없습니다.',
         403,
@@ -122,8 +122,7 @@ export const marketService = {
         ERROR_CODES.NOT_FOUND,
       );
     }
-    //본인 확인
-    if (currentUserId !== marketItem.seller_id) {
+    if (currentUserId !== marketItem.sellerId) {
       throw new AppError('삭제 권한이 없습니다.', 403, ERROR_CODES.FORBIDDEN);
     }
 
@@ -136,8 +135,11 @@ export const marketService = {
         ERROR_CODES.INTERNAL_ERROR,
       );
     }
-    //남은 수량 다시 내 카드 수량으로 채워짐
-    //db에서 진짜 삭제 or 상태값만 바꾸기
-    return await marketRepository.deleteMarketItem(marketItemId);
+    //삭제 연산 호출
+    return await marketRepository.deleteMarketItemAndRollbackCard(
+      marketItemId,
+      marketItem.myCardId,
+      availableQuantity,
+    );
   },
 };

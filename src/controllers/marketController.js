@@ -13,7 +13,7 @@ export const marketController = {
   //상세 조회
   getMarketItemDetail: asyncHandler(async (req, res, next) => {
     const { itemId } = req.params;
-    const result = await marketService.getMarketItemDetail(itemId);
+    const result = await marketService.getMarketItemDetail(Number(itemId));
     return res.status(200).json({
       message: '판매 카드 상세 조회 성공',
       data: result,
@@ -39,7 +39,7 @@ export const marketController = {
 
     const result = await marketService.updateMarketItem(
       userId,
-      itemId,
+      Number(itemId),
       itemData,
     );
     return res.status(200).json({
@@ -53,7 +53,7 @@ export const marketController = {
     const { itemId } = req.params;
     const userId = req.user.id;
 
-    const result = await marketService.deleteMarketItem(itemId, userId);
+    const result = await marketService.deleteMarketItem(Number(itemId), userId);
     return res.status(200).json({
       message: '판매 카드 삭제 성공',
       data: result,

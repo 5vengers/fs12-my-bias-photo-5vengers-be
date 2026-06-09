@@ -30,10 +30,29 @@ export const marketRepository = {
       data: item,
     });
   },
-  //판매 글 삭제
-  deleteMarketItem: async (itemId) => {
-    return await prisma.marketItem.delete({
-      where: { id: itemId },
+  //판매 글 삭제(상태: DELETED 로 업데이트 처리 후 남은 수량 롤백처리)
+  deleteMarketItemAndRollbackCard: async (
+    marketItemId,
+    myCardId,
+    rollbackQuantity,
+  ) => {
+    //트랜잭션 처리
+    return await prisma.$transaction(async (tx) => {
+      if (rollbackQuantity > 0) {
+        await tx.myCard.update({
+          where: { id: myCardId },
+          data: {
+            quantity: { increment: rollbackQuantity },
+          },
+        });
+      }
+
+      const deletedItem = await tx.marketItem.update({
+        where: { id: marketItemId },
+        data: { status: 'DELETED' }, // 상태를 DELETED로 변경
+      });
+
+      return deletedItem;
     });
   },
 
