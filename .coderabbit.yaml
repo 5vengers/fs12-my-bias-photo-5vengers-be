@@ -1,0 +1,216 @@
+# ════════════════════════════════════════════════════════════
+#  CodeRabbit 설정 - Backend
+#  Stack: Node.js · Express · Zod
+# ════════════════════════════════════════════════════════════
+
+language: ko-KR
+
+reviews:
+  # assertive : 엄격한 리뷰
+  # chill : 부드러운 리뷰
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  changed_files_summary: true
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    incremental_reviews: true
+
+  # ── 파일 필터 ──────────────────────────────────────────────
+  path_filters:
+    # 빌드 결과물
+    - '!**/dist/**'
+    - '!**/build/**'
+
+    # 의존성 · 락 파일
+    - '!**/node_modules/**'
+    - '!**/package-lock.json'
+    - '!**/yarn.lock'
+    - '!**/pnpm-lock.yaml'
+
+    # 자동 생성 파일
+    - '!**/*.generated.*'
+    - '!**/__generated__/**'
+
+    # 테스트 산출물
+    - '!**/__snapshots__/**'
+    - '!**/coverage/**'
+
+    # 환경변수 샘플
+    - '!**/.env.example'
+
+  # ── 경로별 리뷰 지침 ──────────────────────────────────────
+  path_instructions:
+    # ── 1. 라우터 ─────────────────────────────────────────────
+    - path: '{routes,src/routes,router,src/router}/**/*.js'
+      instructions: |
+        Express 라우터를 리뷰할 때 아래 사항을 확인해주세요.
+
+        [구조]
+        - 라우터 파일이 HTTP 메서드·리소스 단위로 적절히 분리되어 있는지
+        - 라우트 경로가 RESTful 컨벤션을 따르는지 (명사 복수형, 계층 구조)
+        - 미들웨어 체인 순서가 올바른지 (인증 → 검증 → 핸들러)
+
+        [인증 · 인가]
+        - 보호 라우트에 인증 미들웨어가 빠짐없이 적용되어 있는지
+        - 역할 기반 접근 제어(RBAC)가 필요한 엔드포인트에 인가 미들웨어가 있는지
+
+        [Zod 검증]
+        - 모든 요청(body, params, query)에 Zod 스키마 검증이 적용되어 있는지
+        - 검증 미들웨어가 라우트 핸들러보다 먼저 실행되는지
+        - 검증 실패 시 400 Bad Request와 명확한 에러 메시지를 반환하는지
+
+    # ── 2. 컨트롤러 ───────────────────────────────────────────
+    - path: '{controllers,src/controllers}/**/*.js'
+      instructions: |
+        Express 컨트롤러를 리뷰할 때 아래 사항을 확인해주세요.
+
+        [책임 분리]
+        - 컨트롤러는 요청/응답 처리에만 집중하고, 비즈니스 로직은 서비스 레이어로 위임했는지
+        - DB 쿼리·외부 API 호출이 컨트롤러에 직접 작성되어 있지 않은지
+
+        [에러 처리]
+        - 모든 async 핸들러에 try-catch 또는 asyncHandler 래퍼가 적용되어 있는지
+        - 에러를 next(err)로 전달해 중앙 에러 핸들러가 처리하도록 하는지
+        - 적절한 HTTP 상태 코드를 사용하는지
+          (200 OK / 201 Created / 400 Bad Request / 401 Unauthorized /
+           403 Forbidden / 404 Not Found / 409 Conflict / 500 Internal Server Error)
+
+        [응답]
+        - 응답 구조가 프로젝트 전체에서 일관된 포맷을 따르는지 ({ success, data, message })
+        - 민감한 정보(비밀번호 해시, 내부 스택 트레이스 등)가 응답에 포함되지 않는지
+
+    # ── 3. 서비스 레이어 ──────────────────────────────────────
+    - path: '{services,src/services}/**/*.js'
+      instructions: |
+        서비스 레이어를 리뷰할 때 아래 사항을 확인해주세요.
+
+        [비즈니스 로직]
+        - 핵심 비즈니스 규칙이 서비스에 집중되어 있는지
+        - HTTP 의존성(req, res)이 서비스에 혼입되어 있지 않은지 — 서비스는 프레임워크 독립적이어야 함
+        - 트랜잭션이 필요한 여러 DB 작업을 하나의 트랜잭션으로 묶었는지
+
+        [에러]
+        - 비즈니스 예외를 커스텀 에러 클래스로 throw하는지 (예: NotFoundError, ConflictError)
+        - 외부 서비스 실패에 대한 폴백·재시도 로직이 있는지
+
+    # ── 4. Zod 스키마 ─────────────────────────────────────────
+    - path: '{schemas,src/schemas,validators,src/validators}/**/*.js'
+      instructions: |
+        Zod 스키마를 리뷰할 때 아래 사항을 확인해주세요.
+
+        [스키마 설계]
+        - 공통으로 재사용되는 필드는 z.string().email() 등 개별 스키마로 분리했는지
+        - 스키마 이름이 용도를 명확히 표현하는지 (CreateUserSchema, UpdatePostBodySchema 등)
+        - .strict()를 사용해 정의되지 않은 필드를 차단하는지 (보안상 중요)
+
+        [검증 규칙]
+        - 문자열 길이(min/max), 숫자 범위(min/max), 패턴(regex) 등 제약이 충분한지
+        - 선택적 필드와 필수 필드 구분이 명확한지 (.optional() / .nullable())
+        - 에러 메시지가 한국어 또는 명확한 영어로 커스터마이징되어 있는지
+          (예: z.string({ required_error: '이름은 필수입니다' }))
+        - 비밀번호·토큰 등 민감 필드에 transform으로 불필요한 값을 제거하는지
+
+        [타입 활용]
+        - z.infer<typeof Schema>로 TypeScript 타입을 추출해 사용하는지
+          (JS 프로젝트라도 JSDoc과 함께 활용 권장)
+
+    # ── 5. 미들웨어 ───────────────────────────────────────────
+    - path: '{middlewares,middleware,src/middlewares,src/middleware}/**/*.js'
+      instructions: |
+        미들웨어를 리뷰할 때 아래 사항을 확인해주세요.
+
+        [인증·인가]
+        - JWT 검증 시 서명(signature) 및 만료(exp) 모두 확인하는지
+        - 토큰이 Authorization 헤더 외의 안전하지 않은 경로에서 추출되지 않는지
+        - 미들웨어 실패 시 반드시 next(err) 또는 응답 종료를 하는지 (무한 대기 방지)
+
+        [검증 미들웨어 (Zod)]
+        - req.body / req.params / req.query를 각각 분리된 스키마로 검증하는지
+        - safeParse를 사용해 예외 없이 에러를 처리하는지
+        - 검증 통과 후 파싱된 데이터를 req.validated 등 별도 프로퍼티에 저장해 원본 오염을 방지하는지
+
+        [공통]
+        - 에러 핸들링 미들웨어의 시그니처가 (err, req, res, next) 4개 인수인지
+        - CORS 설정이 허용 오리진을 화이트리스트로 관리하는지 (* 사용 금지)
+        - 요청 로깅에 민감 정보(Authorization 헤더, 비밀번호)가 포함되지 않는지
+
+    # ── 6. 모델 / DB 레이어 ───────────────────────────────────
+    - path: '{models,src/models,repositories,src/repositories}/**/*.js'
+      instructions: |
+        모델·DB 레이어를 리뷰할 때 아래 사항을 확인해주세요.
+
+        [쿼리 보안]
+        - 모든 쿼리가 파라미터 바인딩을 사용하는지 — 문자열 보간(concatenation) 절대 금지
+        - 원시 쿼리(raw query)를 사용하는 경우 특히 주의 깊게 검토
+
+        [성능]
+        - N+1 쿼리 패턴이 발생하지 않는지 (JOIN 또는 배치 조회로 해결)
+        - 자주 조회되는 컬럼에 인덱스가 설정되어 있는지
+
+        [데이터 정합성]
+        - 여러 쓰기 작업이 하나의 트랜잭션으로 묶여 있는지
+        - 삭제 작업이 소프트 딜리트(soft delete)를 사용하는지 검토
+
+    # ── 7. 설정 파일 ──────────────────────────────────────────
+    - path: '{config,src/config}/**/*.js'
+      instructions: |
+        설정 파일을 리뷰할 때 아래 사항을 확인해주세요.
+
+        - 환경변수를 하드코딩하지 않고 process.env로 읽어오는지
+        - 필수 환경변수가 누락된 경우 서버 시작 시 즉시 실패(fail-fast)하는지
+        - 민감 설정(DB 비밀번호, JWT 시크릿 등)이 코드에 직접 포함되어 있지 않은지
+        - 환경별(development / staging / production) 설정 분기가 명확한지
+
+    # ── 8. 테스트 ─────────────────────────────────────────────
+    - path: '**/*.{test,spec}.js'
+      instructions: |
+        테스트 코드를 리뷰할 때 아래 사항을 확인해주세요.
+
+        - 테스트 설명(describe/it)이 한국어로 명확하게 작성되었는지
+        - 정상 케이스 외 에러 케이스, 경계값 케이스가 포함되어 있는지
+        - Zod 스키마 테스트 시 유효한 입력·무효한 입력·경계값을 모두 커버하는지
+        - DB 호출은 모킹하거나 테스트 DB를 사용하는지 (운영 DB 접근 금지)
+        - 각 테스트가 독립적이며 실행 순서에 영향 받지 않는지
+
+  # ── 전체 공통 지침 ────────────────────────────────────────
+  instructions: |
+    ## 백엔드 공통 리뷰 기준
+
+    ### 네이밍 컨벤션
+    - 변수·함수: camelCase
+    - 클래스·생성자: PascalCase
+    - 상수(불변값): UPPER_SNAKE_CASE
+    - 라우트 경로: kebab-case (예: /user-profiles)
+    - DB 컬럼·테이블: snake_case
+
+    ### 코드 품질
+    - console.log / console.error 직접 사용 금지 — 로거(winston, pino 등) 사용
+    - TODO·FIXME 주석이 남아 있다면 언급하고 이슈 등록을 권장
+    - 매직 넘버는 상수로 추출 (예: 3600 → TOKEN_EXPIRY_SECONDS)
+
+    ### 보안 (필수 체크)
+    - 에러 응답에 스택 트레이스·내부 경로를 노출하지 않는지 (운영 환경)
+    - 입력값을 Zod로 검증하지 않고 바로 DB에 저장하는 코드가 없는지
+    - 인증 토큰을 로그에 기록하지 않는지
+    - rate limiting이 공개 엔드포인트에 적용되어 있는지
+
+    ### 일반
+    - 리뷰 코멘트는 반드시 한국어로 작성
+    - 제안 사항은 이유와 함께 설명 (단순 지적보다 개선 방향 제시)
+
+# ── 채팅 ──────────────────────────────────────────────────
+chat:
+  auto_reply: true
+
+# ── 지식 베이스 ───────────────────────────────────────────
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto
