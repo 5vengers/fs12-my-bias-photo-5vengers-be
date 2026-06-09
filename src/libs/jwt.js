@@ -1,16 +1,17 @@
 import jwt from 'jsonwebtoken';
-
-const ACCESS_EXPIRES_IN = '15m';
-const REFRESH_EXPIRES_IN = '7d';
+import {
+  ACCESS_TOKEN_EXPIRES_IN,
+  REFRESH_TOKEN_EXPIRES_IN,
+} from '../constants/tokenConfig.js';
 
 export const signAccessToken = (payload) =>
   jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: ACCESS_EXPIRES_IN,
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
   });
 
 export const signRefreshToken = (payload) =>
   jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: REFRESH_EXPIRES_IN,
+    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
   });
 
 export const verifyAccessToken = (token) =>

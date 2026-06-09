@@ -2,33 +2,26 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authController from './controllers/authController.js';
+import passport from './config/passport.js';
+import authRouter from './routes/authRouter.js';
 import { authenticate } from './middlewares/authenticate.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import { validate } from './middlewares/validate.js';
-import { loginSchema, registerSchema } from './schemas/authSchema.js';
 import pointController from './controllers/pointController.js';
 
 const app = express();
 
 // 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(passport.initialize());
 
 app.get('/', (req, res) => {
   res.json({ message: '서버가 정상적으로 실행 중입니다.' });
 });
 
-app.post(
-  '/api/auth/register',
-  validate(registerSchema),
-  authController.register,
-);
-app.post('/api/auth/login', validate(loginSchema), authController.login);
-app.post('/api/auth/logout', authenticate, authController.logout);
-app.post('/api/auth/refresh', authController.refresh);
+app.use('/api/auth', authRouter);
 
 // 포인트 조회 API
 app.get('/api/points/me', authenticate, pointController.getMyPoint);

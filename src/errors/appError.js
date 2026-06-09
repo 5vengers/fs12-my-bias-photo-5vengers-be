@@ -88,6 +88,31 @@ export class DuplicateNicknameError extends AppError {
   }
 }
 
+/**
+ * Google OAuth 인증 처리 중 발생하는 에러
+ * - 이미 이메일/비밀번호로 가입된 계정과 이메일 충돌
+ * - Google 인증 자체 실패 (사용자 취소, Google 서버 오류 등)
+ * HTTP Status: 401 Unauthorized
+ */
+export class OAuthError extends AppError {
+  constructor(message = 'Google 로그인에 실패했습니다.') {
+    super(message, 401, ERROR_CODES.OAUTH_ERROR);
+  }
+}
+
+/**
+ * Google OAuth 이메일이 기존 LOCAL 계정과 충돌하는 경우 발생하는 에러
+ * 인증 실패가 아닌 리소스 충돌이므로 409 사용
+ * HTTP Status: 409 Conflict
+ */
+export class OAuthConflictError extends AppError {
+  constructor(
+    message = '해당 이메일로 이미 가입된 계정이 있습니다. 이메일로 로그인해주세요.',
+  ) {
+    super(message, 409, ERROR_CODES.OAUTH_CONFLICT);
+  }
+}
+
 // MARK: 포인트 관련 에러 클래스 추가
 export class PointsNotFoundError extends AppError {
   constructor() {
