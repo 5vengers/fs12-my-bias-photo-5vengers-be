@@ -8,6 +8,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { validate } from './middlewares/validate.js';
 import { loginSchema, registerSchema } from './schemas/authSchema.js';
+import { swaggerUi, specs } from './swagger/swagger.js';
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.post(
 app.post('/api/auth/login', validate(loginSchema), authController.login);
 app.post('/api/auth/logout', authenticate, authController.logout);
 app.post('/api/auth/refresh', authController.refresh);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use(notFoundHandler);
 app.use(errorHandler);
