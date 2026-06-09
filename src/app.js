@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/points', pointRouter);
-app.use('api', marketRouter);
+app.use('/api', marketRouter);
 
 // 라우터 등록 후, 404 Not Found 처리 미들웨어와 에러 처리 미들웨어 등록
 app.use(notFoundHandler);
