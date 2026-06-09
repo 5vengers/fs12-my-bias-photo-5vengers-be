@@ -13,7 +13,7 @@ export const marketController = {
   //상세 조회
   getMarketItemDetail: asyncHandler(async (req, res, next) => {
     const { itemId } = req.params;
-    const result = await marketService.getMarketItemDetail(Number(itemId));
+    const result = await marketService.getMarketItemDetail(itemId);
     return res.status(200).json({
       message: '판매 카드 상세 조회 성공',
       data: result,
@@ -22,8 +22,9 @@ export const marketController = {
 
   //  판매 등록
   createMarketItem: asyncHandler(async (req, res, next) => {
+    const userId = req.user.id;
     const itemData = req.body;
-    const result = await marketService.registerMarketItem(itemData);
+    const result = await marketService.registerMarketItem(userId, itemData);
     return res.status(201).json({
       message: '판매 카드 생성 성공',
       data: result,
@@ -33,9 +34,12 @@ export const marketController = {
   // 정보 수정
   updateMarketItem: asyncHandler(async (req, res, next) => {
     const { itemId } = req.params;
+    const userId = req.user.id;
     const itemData = req.body;
+
     const result = await marketService.updateMarketItem(
-      Number(itemId),
+      userId,
+      itemId,
       itemData,
     );
     return res.status(200).json({
@@ -47,7 +51,9 @@ export const marketController = {
   // 판매 삭제
   deleteMarketItem: asyncHandler(async (req, res, next) => {
     const { itemId } = req.params;
-    const result = await marketService.deleteMarketItem(Number(itemId));
+    const userId = req.user.id;
+
+    const result = await marketService.deleteMarketItem(itemId, userId);
     return res.status(200).json({
       message: '판매 카드 삭제 성공',
       data: result,

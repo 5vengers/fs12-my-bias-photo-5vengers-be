@@ -2,6 +2,7 @@
 export const ERROR_CODES = {
   VALIDATION_ERROR: 'VALIDATION_ERROR', // 입력값 형식이나 필수값 검증 실패
   UNAUTHORIZED: 'UNAUTHORIZED', // 로그인 or 유효한 인증 토큰 필요
+  FORBIDDEN: 'FORBIDDEN', // 권한이 없음 (403 - 작성자 권한 없음, 접근 권한 없음 등)
 
   INVALID_TOKEN: 'INVALID_TOKEN', // 토큰이 위조되었거나 형식이 올바르지 않음
   EXPIRED_TOKEN: 'EXPIRED_TOKEN', // 토큰의 유효 기간이 만료됨

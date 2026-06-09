@@ -2,15 +2,26 @@ import { marketRepository } from '../repositories/marketRepository.js';
 import { AppError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
-//최대 카드 설정 상한선
-const calculateMaxAvailableQuantity = async (marketItemId, myCardId) => {
-  //내 카드 보유량 조회
+//최대 카드 등록 상한선
+const calculateMaxAvailableQuantity = async (
+  marketItemId,
+  myCardId,
+  userId,
+) => {
   const myCard = await marketRepository.findMyCard(myCardId);
   if (!myCard) {
     throw new AppError(
       '보유하고 있지 않은 카드입니다.',
       404,
       ERROR_CODES.NOT_FOUND,
+    );
+  }
+
+  if (myCard.userId !== userId) {
+    throw new AppError(
+      '해당 카드에 대한 접근 권한이 없습니다.',
+      403,
+      ERROR_CODES.FORBIDDEN,
     );
   }
 
@@ -41,10 +52,11 @@ export const marketService = {
     return item;
   },
 
-  registerMarketItem: async (itemData) => {
+  registerMarketItem: async (userId, itemData) => {
     const maxAvailableQuantity = await calculateMaxAvailableQuantity(
       null,
       itemData.myCardId,
+      userId,
     );
 
     if (itemData.quantity > maxAvailableQuantity) {
@@ -54,12 +66,10 @@ export const marketService = {
         ERROR_CODES.VALIDATION_ERROR,
       );
     }
-    return marketRepository.createMarketItem(itemData);
+    return marketRepository.createMarketItem(userId, itemData);
   },
 
-  updateMarketItem: async (marketItemId, updateData, currentUserId) => {
-    // TODO: 판매자 검증 로직 추가 예정
-
+  updateMarketItem: async (currentUserId, marketItemId, updateData) => {
     const marketItem = await marketRepository.findMarketItemById(marketItemId);
     if (!marketItem) {
       throw new AppError(
@@ -68,6 +78,15 @@ export const marketService = {
         ERROR_CODES.NOT_FOUND,
       );
     }
+    //본인 확인
+    if (currentUserId !== marketItem.seller_id) {
+      throw new AppError(
+        '작성자 수정 권한이 없습니다.',
+        403,
+        ERROR_CODES.FORBIDDEN,
+      );
+    }
+
     //수량 하한선 체크
     if (updateData.quantity < marketItem.soldQuantity) {
       throw new AppError(
@@ -80,11 +99,12 @@ export const marketService = {
     const maxAvailableQuantity = await calculateMaxAvailableQuantity(
       marketItemId,
       marketItem.myCardId,
+      currentUserId,
     );
 
     if (updateData.quantity > maxAvailableQuantity) {
       throw new AppError(
-        '보유 수량보다 많은 수를 등록할 수 없습니다.',
+        '보유 수량보다 많은 수를 판매할 수 없습니다.',
         400,
         ERROR_CODES.VALIDATION_ERROR,
       );
@@ -102,7 +122,10 @@ export const marketService = {
         ERROR_CODES.NOT_FOUND,
       );
     }
-    // TODO: 판매자 검증 로직 추가 예정
+    //본인 확인
+    if (currentUserId !== marketItem.seller_id) {
+      throw new AppError('삭제 권한이 없습니다.', 403, ERROR_CODES.FORBIDDEN);
+    }
 
     const availableQuantity = marketItem.quantity - marketItem.soldQuantity;
 

@@ -44,6 +44,7 @@ enum Genre {
 enum MarketStatus {
   SELLING
   SOLD_OUT
+  DELETED
 }
 
 enum ExchangeStatus {
