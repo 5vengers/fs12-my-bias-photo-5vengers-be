@@ -17,6 +17,7 @@ export const ERROR_CODES = {
 
   // 포인트 관련 에러 코드
   POINTS_NOT_FOUND: 'POINTS_NOT_FOUND', // 사용자 포인트 정보가 존재하지 않음
+  POINT_BOX_COOLDOWN: 'POINT_BOX_COOLDOWN', // 포인트 박스 오픈 쿨다운 중
 
   MARKET_LISTING_NOT_FOUND: 'MARKET_LISTING_NOT_FOUND', // 카드를 찾을 수 없을 때 (404)
   PHOTO_CARD_ALREADY_LISTED: 'PHOTO_CARD_ALREADY_LISTED', // 이미 등록된 카드일 때 (409)
