@@ -59,6 +59,12 @@ enum PointLogType {
   BOX
 }
 
+enum PointReferenceType {
+  ORDER
+  POINT_BOX
+  SALE
+}
+
 enum NotificationType {
   TRADE_REQUEST
   TRADE_ACCEPTED
@@ -276,14 +282,18 @@ model PointLog {
 
   userId String @map("user_id") @db.Uuid
 
-  type PointLogType
-
-  amount Int
+  type         PointLogType
+  amount       Int
+  balanceAfter Int                @map("balance_after")
+  referenceType PointReferenceType? @map("reference_type")
+  referenceId Int?                @map("reference_id")
+  description String?
 
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id])
 
+  @@index([userId, createdAt])
   @@map("point_logs")
 }
 
