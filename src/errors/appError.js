@@ -119,3 +119,14 @@ export class PointsNotFoundError extends AppError {
     super('포인트 정보를 찾을 수 없습니다.', 404, ERROR_CODES.POINTS_NOT_FOUND);
   }
 }
+
+// 포인트 박스 오픈 쿨다운 중 에러 클래스 추가
+export class PointBoxCooldownError extends AppError {
+  constructor() {
+    super(
+      '포인트 상자는 1시간에 한 번만 열 수 있습니다.',
+      409,
+      ERROR_CODES.POINT_BOX_COOLDOWN,
+    );
+  }
+}
