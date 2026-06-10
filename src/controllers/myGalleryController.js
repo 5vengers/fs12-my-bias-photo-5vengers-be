@@ -1,10 +1,8 @@
 import { success } from 'zod';
 import myGalleryService from '../services/myGalleryService.js';
 
-const userId = '30f642a0-171b-4ab9-82fa-52cfc32b2389';
-
 const getMyGallery = async (req, res, next) => {
-  // const {userId} = req.user;
+  const { userId } = req.user;
 
   const query = req.query;
 
@@ -18,7 +16,7 @@ const getMyGallery = async (req, res, next) => {
 };
 
 const createPhotoCard = async (req, res, next) => {
-  // const {userId} = req.user;
+  const { userId } = req.user;
   const cardData = req.body;
 
   const result = await myGalleryService.resisterCard(userId, cardData);
@@ -32,7 +30,7 @@ const createPhotoCard = async (req, res, next) => {
 
 // 생성 로그 조회
 const getLog = async (req, res, next) => {
-  // const {userId} = req.user;
+  const { userId } = req.user;
   const result = await myGalleryService.getCreationLog(userId);
 
   return res.status(200).json({

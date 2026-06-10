@@ -28,9 +28,21 @@ const getMyCards = async (userId, query) => {
   const pageNum = Number(page);
   const pageSizeNum = Number(pageSize);
 
-  const result = await myGalleryRepository.findAllMyCards(userId);
+  const result = await myGalleryRepository.findAllMyCards(
+    userId,
+    keyword,
+    genre,
+    grade,
+  );
 
-  return result;
+  // 페이지네이션
+  const totalCount = result.length;
+  const totalPages = Math.ceil(totalCount / pageSizeNum);
+  const skip = (pageNum - 1) * pageSizeNum;
+
+  const paginationCards = result.slice(skip, skip + pageSizeNum);
+
+  return paginationCards;
 };
 
 const resisterCard = async (userId, cardData) => {

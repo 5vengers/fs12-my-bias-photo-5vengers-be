@@ -9,13 +9,20 @@ import myGalleryController from '../controllers/myGalleryController.js';
 
 const router = Router();
 
-router.get('/', asyncHandler(myGalleryController.getMyGallery));
+// 내 카드 조회
+router.get('/', authenticate, asyncHandler(myGalleryController.getMyGallery));
 router.post(
   '/create',
+  authenticate,
   validate(createCardSchema),
   asyncHandler(myGalleryController.createPhotoCard),
 );
 
-router.get('/creationLog', asyncHandler(myGalleryController.getLog));
+// 카드 생성 횟수 조회
+router.get(
+  '/creationLog',
+  authenticate,
+  asyncHandler(myGalleryController.getLog),
+);
 
 export default router;

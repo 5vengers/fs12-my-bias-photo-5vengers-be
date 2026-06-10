@@ -1,11 +1,30 @@
 import prisma from '../config/prisma.js';
+import { Genre, CardGrade } from '@prisma/client';
 
 // 내 소유 카드 조회
-const findAllMyCards = async (ownerId) => {
+const findAllMyCards = async (ownerId, keyword, genre, grade) => {
+  // 필터링 : genre, grade, keyword
+  // keyword 처리 후 genre, grade 처리
+  // genre, grade enum 처리
+  const genreValue = Object.values(Genre).includes(genre) ? genre : undefined;
+  const gradeValue = Object.values(CardGrade).includes(grade)
+    ? grade
+    : undefined;
+
   // 기본 카드 조회
   const cards = await prisma.myCard.findMany({
     where: {
       ownerId,
+      photoCard: {
+        ...(keyword && {
+          OR: [
+            { name: { contains: keyword, mode: 'insensitive' } },
+            { description: { contains: keyword, mode: 'insensitive' } },
+          ],
+        }),
+        ...(genre && { genre: genreValue }),
+        ...(grade && { grade: gradeValue }),
+      },
     },
     select: {
       quantity: true,
@@ -21,10 +40,6 @@ const findAllMyCards = async (ownerId) => {
       },
     },
   });
-
-  // 필터링 : genre, grade, keyword
-
-  // 페이지네이션
 
   return cards;
 };
