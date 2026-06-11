@@ -129,10 +129,23 @@ const refresh = async (refreshToken) => {
     throw new InvalidTokenError();
   }
 
+  const user = await authRepository.findUserById(stored.userId);
+  if (!user) throw new UnauthorizedError('존재하지 않는 유저입니다.');
+
   const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
     await issueTokens(stored.userId);
 
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      provider: user.provider,
+      created_at: user.createdAt,
+    },
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
 };
 
 // ─────────────────────────────────────────────

@@ -57,13 +57,16 @@ const logout = async (req, res, next) => {
 const refresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
-    const { accessToken, refreshToken: newRefreshToken } =
-      await authService.refresh(refreshToken);
+    const {
+      user,
+      accessToken,
+      refreshToken: newRefreshToken,
+    } = await authService.refresh(refreshToken);
     setRefreshTokenCookie(res, newRefreshToken);
     res.json({
       success: true,
       message: '토큰이 재발급되었습니다.',
-      data: { accessToken },
+      data: { user, accessToken },
     });
   } catch (err) {
     next(err);
