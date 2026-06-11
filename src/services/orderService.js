@@ -44,7 +44,6 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
     buyerId,
     marketItemId,
     quantity,
-    totalPrice,
   });
 };
 

@@ -32,7 +32,7 @@ const calculateMaxAvailableQuantity = async (
     .filter((item) => item.id !== Number(marketItemId))
     .reduce((sum, item) => sum + (item.quantity - item.soldQuantity), 0);
 
-  return myCard.quantity - otherSellingQuantity;
+  return soldQuantity + myCard.quantity - otherSellingQuantity;
 };
 
 export const marketService = {
@@ -78,6 +78,7 @@ export const marketService = {
         ERROR_CODES.NOT_FOUND,
       );
     }
+
     //본인 확인
     if (currentUserId !== marketItem.sellerId) {
       throw new AppError(
@@ -100,6 +101,7 @@ export const marketService = {
       marketItemId,
       marketItem.myCardId,
       currentUserId,
+      marketItem.soldQuantity,
     );
 
     if (updateData.quantity > maxAvailableQuantity) {
@@ -110,7 +112,20 @@ export const marketService = {
       );
     }
 
-    return await marketRepository.updateMarketItem(marketItemId, updateData);
+    const updatedMarketItem = await marketRepository.updateMarketItem(
+      marketItemId,
+      updateData,
+    );
+
+    if (!updatedMarketItem) {
+      throw new AppError(
+        '이미 판매된 수량보다 판매 수량을 줄일 수 없습니다.',
+        409,
+        ERROR_CODES.INSUFFICIENT_STOCK,
+      );
+    }
+
+    return updatedMarketItem;
   },
 
   deleteMarketItem: async (currentUserId, marketItemId) => {
@@ -126,7 +141,7 @@ export const marketService = {
       throw new AppError(
         '이미 삭제된 판매글입니다.',
         400,
-        ERROR_CODES.BAD_REQUEST,
+        ERROR_CODES.VALIDATION_ERROR,
       );
     }
 

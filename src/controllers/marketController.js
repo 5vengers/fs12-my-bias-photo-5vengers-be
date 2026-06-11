@@ -25,7 +25,7 @@ export const marketController = {
 
   //  판매 등록
   createMarketItem: async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const itemData = req.body;
     const result = await marketService.registerMarketItem(userId, itemData);
     return res.status(201).json({
@@ -38,7 +38,7 @@ export const marketController = {
   // 정보 수정
   updateMarketItem: async (req, res) => {
     const { itemId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const itemData = req.body;
 
     const result = await marketService.updateMarketItem(
@@ -56,7 +56,7 @@ export const marketController = {
   // 판매 삭제
   deleteMarketItem: async (req, res) => {
     const { itemId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const result = await marketService.deleteMarketItem(userId, Number(itemId));
     return res.status(200).json({

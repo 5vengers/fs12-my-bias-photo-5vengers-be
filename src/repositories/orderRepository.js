@@ -2,7 +2,7 @@ import prisma from '../config/prisma.js';
 import { AppError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
-const purchase = async ({ buyerId, marketItemId, quantity, totalPrice }) => {
+const purchase = async ({ buyerId, marketItemId, quantity }) => {
   return prisma.$transaction(async (tx) => {
     const marketItem = await tx.marketItem.findUnique({
       where: { id: marketItemId },
@@ -21,11 +21,15 @@ const purchase = async ({ buyerId, marketItemId, quantity, totalPrice }) => {
       );
     }
 
+    const totalPrice = marketItem.pricePerCard * quantity;
+
     // 동시 구매가 들어와도 판매 수량을 초과하지 않도록 조건부 갱신
     const updatedStock = await tx.marketItem.updateMany({
       where: {
         id: marketItemId,
         status: 'SELLING',
+        quantity: marketItem.quantity,
+        pricePerCard: marketItem.pricePerCard,
         soldQuantity: {
           lte: marketItem.quantity - quantity,
         },

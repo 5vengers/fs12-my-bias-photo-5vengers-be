@@ -24,11 +24,32 @@ export const marketRepository = {
 
   //판매 정보 수정
   updateMarketItem: async (itemId, item) => {
-    return await prisma.marketItem.update({
-      where: { id: itemId },
+    if (item.quantity === undefined) {
+      return prisma.marketItem.update({
+        where: { id: itemId },
+        data: item,
+      });
+    }
+    const updated = await prisma.marketItem.updateMany({
+      where: {
+        id: itemId,
+        status: 'SELLING',
+        soldQuantity: {
+          lte: item.quantity,
+        },
+      },
       data: item,
     });
+
+    if (updated.count === 0) {
+      return null;
+    }
+
+    return prisma.marketItem.findUnique({
+      where: { id: itemId },
+    });
   },
+
   //판매 글 삭제(상태: DELETED 로 업데이트 처리 후 남은 수량 롤백처리)
   deleteMarketItem: async (marketItemId) => {
     return await prisma.marketItem.update({
