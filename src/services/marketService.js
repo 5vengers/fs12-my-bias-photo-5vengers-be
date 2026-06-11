@@ -7,6 +7,7 @@ const calculateMaxAvailableQuantity = async (
   marketItemId,
   myCardId,
   userId,
+  soldQuantity = 0,
 ) => {
   const myCard = await marketRepository.findMyCard(myCardId);
   if (!myCard) {
