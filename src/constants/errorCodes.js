@@ -23,6 +23,12 @@ export const ERROR_CODES = {
   PHOTO_CARD_ALREADY_LISTED: 'PHOTO_CARD_ALREADY_LISTED', // 이미 등록된 카드일 때 (409)
   CANNOT_BUY_OWN_PHOTO_CARD: 'CANNOT_BUY_OWN_PHOTO_CARD', // 본인 카드 구매 시도 시 (409)
 
+  // 주문 관련 에러 코드
+  INSUFFICIENT_POINTS: 'INSUFFICIENT_POINTS', // 구매 시 사용자의 포인트가 부족할 때 (409)
+  INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK', // 구매 시 재고가 부족할 때 (409)
+  MARKET_ITEM_NOT_SELLING: 'MARKET_ITEM_NOT_SELLING', // 구매 시 해당 상품이 판매 중이 아닐 때 (409)
+
+  // 포토 카드 생성 관련 에러 코드
   PHOTO_CARD_ALREADY_LIMIT: 'PHOTO_CARD_ALREADY_LIMIT', // 포토 카드 생성 제한 상한  시 (400)
   CANNOT_FOUND_IMAGE_FILE: 'CANNOT_FOUND_IMAGE_FILE', // 이미지를 찾을 수 없을 때 (400)
 };
