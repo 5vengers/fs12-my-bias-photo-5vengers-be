@@ -45,9 +45,20 @@ const getMyCards = async (userId, query) => {
   return paginationCards;
 };
 
-const resisterCard = async (userId, cardData) => {
+const registerCard = async (userId, file, cardData) => {
+  if (!file) {
+    throw new AppError(
+      '포토카드 생성에 필요한 이미지 파일이 없습니다.',
+      400,
+      ERROR_CODES.CANNOT_FOUND_IMAGE_FILE,
+    );
+  }
+
+  const imagePath = req.file.path;
+
   const result = await myGalleryRepository.createCard(
     userId,
+    imagePath,
     cardData,
     nowYearMonth(),
   );
@@ -70,6 +81,6 @@ const getCreationLog = async (userId) => {
 
 export default {
   getMyCards,
-  resisterCard,
+  registerCard,
   getCreationLog,
 };

@@ -1,5 +1,7 @@
 import prisma from '../config/prisma.js';
 import { Genre, CardGrade } from '@prisma/client';
+import { AppError, PhotoCardLimitError } from '../errors/appError.js';
+import { ERROR_CODES } from '../constants/errorCodes.js';
 
 // 내 소유 카드 조회
 const findAllMyCards = async (ownerId, keyword, genre, grade) => {
@@ -18,8 +20,8 @@ const findAllMyCards = async (ownerId, keyword, genre, grade) => {
       photoCard: {
         ...(keyword && {
           OR: [
-            { name: { contains: keyword, mode: 'insensitive' } },
-            { description: { contains: keyword, mode: 'insensitive' } },
+            { name: { contains: keyword } },
+            { description: { contains: keyword } },
           ],
         }),
         ...(genre && { genre: genreValue }),
@@ -45,26 +47,29 @@ const findAllMyCards = async (ownerId, keyword, genre, grade) => {
 };
 
 // 포토 카드 생성
-const createCard = async (userId, cardData, nowDate) => {
+const createCard = async (userId, imagePath, cardData, nowDate) => {
   const { year, month } = nowDate;
-  const { name, description, genre, grade, price, totalQuantity, imageUrl } =
-    cardData;
+  const { name, description, genre, grade, price, totalQuantity } = cardData;
+  const { imageUrl } = imagePath;
+
+  console.log(imageUrl);
+
   // photocard 와 동시에 mycard, creationLog 에 값 생성을 위해 트랜잭션 적용
   const result = await prisma.$transaction(async (tx) => {
-    const photoCard = await prisma.photoCard.create({
+    const photoCard = await tx.photoCard.create({
       data: {
         creatorId: userId,
         name,
         description,
         genre,
         grade,
-        price: Number(price),
-        totalQuantity: Number(totalQuantity),
+        price,
+        totalQuantity,
         imageUrl,
       },
     });
 
-    const myCard = await prisma.myCard.create({
+    const myCard = await tx.myCard.create({
       data: {
         ownerId: userId,
         photoCardId: photoCard.id,
@@ -72,7 +77,7 @@ const createCard = async (userId, cardData, nowDate) => {
       },
     });
 
-    const log = await prisma.cardCreationLog.upsert({
+    const log = await tx.cardCreationLog.upsert({
       where: {
         userId_year_month: { userId, year, month },
       },
@@ -86,6 +91,21 @@ const createCard = async (userId, cardData, nowDate) => {
         count: { increment: 1 },
       },
     });
+
+    if (log.count > 3) {
+      throw new AppError(
+        '포토 카드 생성 횟수가 초과되었습니다.',
+        400,
+        ERROR_CODES.PHOTO_CARD_ALREADY_LIMIT,
+      );
+    }
+
+    const createdCard = {
+      name: photoCard.name,
+      quantity: myCard.quantity,
+    };
+
+    return createdCard;
   });
 
   return result;
@@ -93,11 +113,9 @@ const createCard = async (userId, cardData, nowDate) => {
 
 // 마이갤러리 포토카드 생성 버튼에 들어갈 count 값 조회
 const findLimits = async (userId, year, month) => {
-  const limits = await prisma.cardCreationLog.findMany({
+  const limits = await prisma.cardCreationLog.findUnique({
     where: {
-      userId,
-      year,
-      month,
+      userId_year_month: { userId, year, month },
     },
     select: {
       id: true,
