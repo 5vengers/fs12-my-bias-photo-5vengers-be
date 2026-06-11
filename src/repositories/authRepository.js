@@ -5,6 +5,8 @@ const findUserByEmail = (email) => prisma.user.findUnique({ where: { email } });
 const findUserByNickname = (nickname) =>
   prisma.user.findUnique({ where: { nickname } });
 
+const findUserById = (id) => prisma.user.findUnique({ where: { id } });
+
 // Google OAuth 유저 조회
 const findUserByProviderId = (providerId) =>
   prisma.user.findUnique({
