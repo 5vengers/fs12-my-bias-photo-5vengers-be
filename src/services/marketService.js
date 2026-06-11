@@ -17,7 +17,7 @@ const calculateMaxAvailableQuantity = async (
     );
   }
 
-  if (myCard.userId !== userId) {
+  if (myCard.ownerId !== userId) {
     throw new AppError(
       '해당 카드에 대한 접근 권한이 없습니다.',
       403,
