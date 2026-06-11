@@ -144,10 +144,6 @@ export const marketService = {
       );
     }
     //삭제 연산 호출
-    return await marketRepository.deleteMarketItemAndRollbackCard(
-      marketItemId,
-      marketItem.myCardId,
-      availableQuantity,
-    );
+    return await marketRepository.deleteMarketItem(marketItemId);
   },
 };
