@@ -42,6 +42,7 @@ const replaceRefreshToken = (userId, token, expiresAt) =>
 export default {
   findUserByEmail,
   findUserByNickname,
+  findUserById,
   findUserByProviderId,
   createUser,
   findRefreshToken,
