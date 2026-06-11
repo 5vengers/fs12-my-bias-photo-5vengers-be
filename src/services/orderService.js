@@ -40,8 +40,6 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
     );
   }
 
-  const totalPrice = marketItem.pricePerCard * quantity;
-
   return orderRepository.purchase({
     buyerId,
     marketItemId,
