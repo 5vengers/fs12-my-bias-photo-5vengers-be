@@ -42,12 +42,17 @@ const upload = multer({ storage });
 router.get('/', authenticate, asyncHandler(myGalleryController.getMyGallery));
 router.post(
   '/create',
-  validate(createCardSchema),
+  authenticate,
   upload.single('imageUrl'),
+  validate(createCardSchema),
   asyncHandler(myGalleryController.createPhotoCard),
 );
 
 // 카드 생성 횟수 조회
-router.get('/creation-log', asyncHandler(myGalleryController.getLog));
+router.get(
+  '/creation-log',
+  authenticate,
+  asyncHandler(myGalleryController.getLog),
+);
 
 export default router;
