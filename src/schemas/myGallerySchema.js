@@ -11,14 +11,16 @@ export const createCardSchema = z
       .min(2, '포토카드 이름은 2자 이상이어야 합니다.')
       .max(20, '포토카드 이름은 20자 이하이어야 합니다.'),
 
-    grade: z.enum(Genre, {
-      required_error: '포토카드 등급은 필수입니다.',
-      invalid_type_error: '유효하지 않은 포토카드 등급입니다.',
-    }),
+    description: z.string({ required_error: '포토카드 설명은 필수입니다.' }),
 
-    genre: z.enum(CardGrade, {
+    genre: z.enum(Object.values(Genre), {
       required_error: '포토카드 장르는 필수입니다.',
       invalid_type_error: '유효하지 않은 포토카드 장르입니다.',
+    }),
+
+    grade: z.enum(Object.values(CardGrade), {
+      required_error: '포토카드 등급은 필수입니다.',
+      invalid_type_error: '유효하지 않은 포토카드 등급입니다.',
     }),
 
     price: z.coerce
@@ -26,7 +28,7 @@ export const createCardSchema = z
         required_error: '포토카드 가격은 필수입니다.',
         invalid_type_error: '포토카드 가격은 숫자이어야 합니다.',
       })
-      .gte(0, '포토카드 판매 금액은 0 P 이상이어야 합니다.'),
+      .gte(0, '포토카드 판매 금액은 0 이상이어야 합니다.'),
 
     total_quantity: z.coerce
       .number({
@@ -35,8 +37,6 @@ export const createCardSchema = z
       })
       .lte(10, '총 발행량은 10장 이하입니다.'),
 
-    image_url: z.string({ required_error: '포토카드 이미지는 필수입니다.' }),
-
-    description: z.string({ required_error: '포토카드 설명은 필수입니다.' }),
+    image_url: z.file({ required_error: '포토카드 이미지는 필수입니다.' }),
   })
   .strict();

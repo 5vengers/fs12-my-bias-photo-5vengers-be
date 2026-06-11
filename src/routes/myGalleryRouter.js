@@ -15,17 +15,22 @@ const router = Router();
 // upload는 single 로 받고 받은 경로는 req.file 로 표시
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './cardUploads');
+    cb(null, './uploads');
   },
   filename: (req, file, cb) => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth();
-    const day = now.getDay();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const second = now.getSeconds();
+    const millis = now.getMilliseconds();
 
-    const nowDate = `${year}-${month}-${day}`;
-    const detail = `-bias-photo-${path.extname(file.originalname)}`;
-    const fileName = `${nowDate}${detail}`;
+    const nowDate = `${year}-${month}-${day}-${hour}-${minute}-${second}-${millis}`;
+    const exName = path.extname(file.originalname);
+
+    const fileName = `${nowDate}-bias-photo${exName}`;
 
     cb(null, fileName);
   },
@@ -34,15 +39,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // 내 카드 조회
-router.get('/', asyncHandler(myGalleryController.getMyGallery));
+router.get('/', authenticate, asyncHandler(myGalleryController.getMyGallery));
 router.post(
   '/create',
   validate(createCardSchema),
-  upload.single('image'),
+  upload.single('imageUrl'),
   asyncHandler(myGalleryController.createPhotoCard),
 );
 
 // 카드 생성 횟수 조회
-router.get('/creationLog', asyncHandler(myGalleryController.getLog));
+router.get('/creation-log', asyncHandler(myGalleryController.getLog));
 
 export default router;

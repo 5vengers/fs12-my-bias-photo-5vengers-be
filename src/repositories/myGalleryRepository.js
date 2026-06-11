@@ -47,12 +47,11 @@ const findAllMyCards = async (ownerId, keyword, genre, grade) => {
 };
 
 // 포토 카드 생성
-const createCard = async (userId, imagePath, cardData, nowDate) => {
+const createCard = async (userId, imageUrl, cardData, nowDate) => {
   const { year, month } = nowDate;
   const { name, description, genre, grade, price, totalQuantity } = cardData;
-  const { imageUrl } = imagePath;
 
-  console.log(imageUrl);
+  console.log('imageUrl =>', imageUrl);
 
   // photocard 와 동시에 mycard, creationLog 에 값 생성을 위해 트랜잭션 적용
   const result = await prisma.$transaction(async (tx) => {
@@ -63,8 +62,8 @@ const createCard = async (userId, imagePath, cardData, nowDate) => {
         description,
         genre,
         grade,
-        price,
-        totalQuantity,
+        price: Number(price),
+        totalQuantity: Number(totalQuantity),
         imageUrl,
       },
     });
@@ -102,6 +101,10 @@ const createCard = async (userId, imagePath, cardData, nowDate) => {
 
     const createdCard = {
       name: photoCard.name,
+      description: photoCard.description,
+      genre: photoCard.genre,
+      grade: photoCard.grade,
+      price: photoCard.price,
       quantity: myCard.quantity,
     };
 

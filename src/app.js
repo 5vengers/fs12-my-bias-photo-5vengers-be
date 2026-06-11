@@ -23,6 +23,8 @@ app.get('/', (req, res) => {
   res.json({ message: '서버가 정상적으로 실행 중입니다.' });
 });
 
+app.use('/uploads', express.static('uploads'));
+
 app.use('/api/auth', authRouter);
 app.use('/api/points', pointRouter);
 app.use('/api', marketRouter);

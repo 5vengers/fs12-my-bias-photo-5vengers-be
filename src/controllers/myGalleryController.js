@@ -18,7 +18,8 @@ const getMyGallery = async (req, res, next) => {
 
 const createPhotoCard = async (req, res, next) => {
   // const { userId } = req.user;
-  const cardData = req.body;
+
+  const cardData = JSON.parse(req.body.data);
   const file = req.file;
 
   const result = await myGalleryService.registerCard(userId, file, cardData);

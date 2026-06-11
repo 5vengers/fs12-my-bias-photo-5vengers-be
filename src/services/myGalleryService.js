@@ -54,11 +54,11 @@ const registerCard = async (userId, file, cardData) => {
     );
   }
 
-  const imagePath = req.file.path;
+  const imageUrl = `/uploads/${file.filename}`;
 
   const result = await myGalleryRepository.createCard(
     userId,
-    imagePath,
+    imageUrl,
     cardData,
     nowYearMonth(),
   );

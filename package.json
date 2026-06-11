@@ -25,8 +25,7 @@
   },
   "devDependencies": {
     "multer": "^2.1.1",
-    "nodemon": "^3.1.14",
-    "path": "^0.12.7"
+    "nodemon": "^3.1.14"
   },
   "repository": {
     "type": "git",
