@@ -3,9 +3,11 @@ import { REFRESH_TOKEN_EXPIRES_MS } from '../constants/tokenConfig.js';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  secure: true,
+  sameSite: 'none',
 };
+
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:3001';
 
 const setRefreshTokenCookie = (res, refreshToken) => {
   res.cookie('refreshToken', refreshToken, {
@@ -75,24 +77,12 @@ const refresh = async (req, res, next) => {
 
 const googleCallback = async (req, res, next) => {
   try {
-    const { user, isNewUser } = req.oauthPayload;
-    const { accessToken, refreshToken } = await authService.oauthLogin(user);
+    const { user } = req.oauthPayload;
+
+    const { refreshToken } = await authService.oauthLogin(user);
+
     setRefreshTokenCookie(res, refreshToken);
-    res.json({
-      success: true,
-      message: '구글 로그인에 성공했습니다.',
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          nickname: user.nickname,
-          provider: user.provider,
-          created_at: user.createdAt,
-        },
-        accessToken,
-        is_new_user: isNewUser,
-      },
-    });
+    return res.redirect(`${FRONTEND_URL}/auth/callback`);
   } catch (err) {
     next(err);
   }
