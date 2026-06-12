@@ -6,6 +6,7 @@ import passport from './config/passport.js';
 import authRouter from './routes/authRouter.js';
 import pointRouter from './routes/pointRouter.js';
 import marketRouter from './routes/marketRouter.js';
+import myGalleryRouter from './routes/myGalleryRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import orderRouter from './routes/orderRouter.js';
@@ -22,9 +23,12 @@ app.get('/', (req, res) => {
   res.json({ message: '서버가 정상적으로 실행 중입니다.' });
 });
 
+app.use('/uploads', express.static('uploads'));
+
 app.use('/api/auth', authRouter);
 app.use('/api/points', pointRouter);
 app.use('/api', marketRouter);
+app.use('/api/myGallery', myGalleryRouter);
 app.use('/api', orderRouter);
 
 // 라우터 등록 후, 404 Not Found 처리 미들웨어와 에러 처리 미들웨어 등록
