@@ -13,9 +13,11 @@ import orderRouter from './routes/orderRouter.js';
 const app = express();
 
 // 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:3001';
+
 app.use(
   cors({
-    origin: 'https://fs12-my-bias-photo-5vengers-fe.vercel.app',
+    origin: FRONTEND_URL,
     credentials: true,
   }),
 );
