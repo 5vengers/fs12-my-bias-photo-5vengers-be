@@ -136,19 +136,30 @@ export class PhotoCardLimitError extends AppError {
   constructor() {
     super(
       '포토 카드는 월 3회 이하로 생성할 수 있습니다.',
-      400,
+      409,
       ERROR_CODES.PHOTO_CARD_ALREADY_LIMIT,
     );
   }
 }
 
 // 이미지 not found 에러 클래스 추가
-export class CannotFoundImage extends AppError {
+export class InvalidImageFile extends AppError {
   constructor() {
     super(
       '포토 카드 생성에 필요한 이미지를 찾을 수 없습니다.',
-      400,
-      ERROR_CODES.CANNOT_FOUND_IMAGE_FILE,
+      404,
+      ERROR_CODES.INVALID_IMAGE_FILE,
+    );
+  }
+}
+
+// 이미지 파일 형식 불일치 에러 클래스 추가
+export class InvalideImageMimeType extends AppError {
+  constructor() {
+    super(
+      '이미지 파일 형식이 아닙니다.',
+      409,
+      ERROR_CODES.INVALID_IMAGE_MIME_TYPE,
     );
   }
 }

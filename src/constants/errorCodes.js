@@ -29,6 +29,7 @@ export const ERROR_CODES = {
   MARKET_ITEM_NOT_SELLING: 'MARKET_ITEM_NOT_SELLING', // 구매 시 해당 상품이 판매 중이 아닐 때 (409)
 
   // 포토 카드 생성 관련 에러 코드
-  PHOTO_CARD_ALREADY_LIMIT: 'PHOTO_CARD_ALREADY_LIMIT', // 포토 카드 생성 제한 상한  시 (400)
-  CANNOT_FOUND_IMAGE_FILE: 'CANNOT_FOUND_IMAGE_FILE', // 이미지를 찾을 수 없을 때 (400)
+  PHOTO_CARD_ALREADY_LIMIT: 'PHOTO_CARD_ALREADY_LIMIT', // 포토 카드 생성 제한 상한  시 (409)
+  INVALID_IMAGE_FILE: 'INVALID_IMAGE_FILE', // 이미지를 찾을 수 없을 때 (404)
+  INVALID_IMAGE_MIME_TYPE: 'INVALID_IMAGE_MIME_TYPE', // 이미지 파일 형식이 다를 때 (409)
 };

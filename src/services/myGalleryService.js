@@ -1,5 +1,5 @@
 import myGalleryRepository from '../repositories/myGalleryRepository.js';
-import { AppError } from '../errors/appError.js';
+import { AppError, InvalidImageFile } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
 const DEFAULT_PAGE = 1;
@@ -47,11 +47,7 @@ const getMyCards = async (userId, query) => {
 
 const registerCard = async (userId, file, cardData) => {
   if (!file) {
-    throw new AppError(
-      '포토카드 생성에 필요한 이미지 파일이 없습니다.',
-      400,
-      ERROR_CODES.CANNOT_FOUND_IMAGE_FILE,
-    );
+    throw new InvalidImageFile();
   }
 
   const imageUrl = `/uploads/${file.filename}`;

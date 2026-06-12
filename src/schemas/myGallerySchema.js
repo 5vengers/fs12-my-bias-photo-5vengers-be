@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { Genre, CardGrade } from '@prisma/client';
-import { error } from 'console';
 
 // zod 로 type 값 validate 처리를 관리합니다.
 // strict() 으로 알 수 없는 키 값은 반환 처리합니다.
@@ -67,3 +66,21 @@ export const createCardSchema = z
       .lte(10, '총 발행량은 10장 이하입니다.'),
   })
   .strict();
+
+export const getMyGalleryQuerySchema = z.object({
+  keyword: z.string({ error: '키워드는 문자열이어야 합니다.' }).optional(),
+  genre: z
+    .enum(Genre, {
+      error: (issue) =>
+        issue.code === 'invalid_value' && '존재하지 않는 장르입니다.',
+    })
+    .optional(),
+  grade: z
+    .enum(CardGrade, {
+      error: (issue) =>
+        issue.code === 'invalid_value' && '존재하지 않는 등급입니다.',
+    })
+    .optional(),
+  page: z.coerce.number().optional(),
+  pageSize: z.coerce.number().optional(),
+});

@@ -1,5 +1,6 @@
 import prisma from '../config/prisma.js';
 import { Genre, CardGrade } from '@prisma/client';
+
 import { AppError, PhotoCardLimitError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
@@ -51,8 +52,6 @@ const createCard = async (userId, imageUrl, cardData, nowDate) => {
   const { year, month } = nowDate;
   const { name, description, genre, grade, price, totalQuantity } = cardData;
 
-  console.log('imageUrl =>', imageUrl);
-
   // photocard 와 동시에 mycard, creationLog 에 값 생성을 위해 트랜잭션 적용
   const result = await prisma.$transaction(async (tx) => {
     const photoCard = await tx.photoCard.create({
@@ -92,11 +91,7 @@ const createCard = async (userId, imageUrl, cardData, nowDate) => {
     });
 
     if (log.count > 3) {
-      throw new AppError(
-        '포토 카드 생성 횟수가 초과되었습니다.',
-        400,
-        ERROR_CODES.PHOTO_CARD_ALREADY_LIMIT,
-      );
+      throw new PhotoCardLimitError();
     }
 
     const createdCard = {
