@@ -22,6 +22,7 @@ router.get(
 );
 router.post(
   '/create',
+  authenticate,
   upload.single('imageUrl'),
   validate(createCardSchema),
   asyncHandler(myGalleryController.createPhotoCard),
