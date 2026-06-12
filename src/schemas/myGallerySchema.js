@@ -68,19 +68,33 @@ export const createCardSchema = z
   .strict();
 
 export const getMyGalleryQuerySchema = z.object({
-  keyword: z.string({ error: '키워드는 문자열이어야 합니다.' }).optional(),
+  keyword: z
+    .string({
+      error: (issue) => {
+        if (issue.code === 'invalid_type') {
+          return '키워드는 문자이어야 합니다.';
+        }
+      },
+    })
+    .optional(),
   genre: z
     .enum(Genre, {
-      error: (issue) =>
-        issue.code === 'invalid_value' && '존재하지 않는 장르입니다.',
+      error: (issue) => {
+        if (issue.code === 'invalid_value') {
+          return '존재하지 않는 장르입니다.';
+        }
+      },
     })
     .optional(),
   grade: z
     .enum(CardGrade, {
-      error: (issue) =>
-        issue.code === 'invalid_value' && '존재하지 않는 등급입니다.',
+      error: (issue) => {
+        if (issue.code === 'invalid_value') {
+          return '존재하지 않는 등급입니다.';
+        }
+      },
     })
     .optional(),
-  page: z.coerce.number().optional(),
-  pageSize: z.coerce.number().optional(),
+  page: z.coerce.number().min(1).optional(),
+  pageSize: z.coerce.number().min(1).optional(),
 });

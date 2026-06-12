@@ -1,9 +1,11 @@
 import multer from 'multer';
 import path from 'path';
 
+import { InvalidImageMimeType } from '../errors/appError.js';
+
 const FILE_MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPE = [
-  'image/jepg',
+  'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
@@ -42,7 +44,7 @@ export const upload = multer({
     if (ALLOWED_MIME_TYPE.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(null, new InvalideImageMimeType());
+      cb(new InvalidImageMimeType());
     }
   },
 });

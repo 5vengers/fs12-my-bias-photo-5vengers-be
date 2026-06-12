@@ -154,7 +154,7 @@ export class InvalidImageFile extends AppError {
 }
 
 // 이미지 파일 형식 불일치 에러 클래스 추가
-export class InvalideImageMimeType extends AppError {
+export class InvalidImageMimeType extends AppError {
   constructor() {
     super(
       '이미지 파일 형식이 아닙니다.',

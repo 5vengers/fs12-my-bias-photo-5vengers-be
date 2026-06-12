@@ -5,8 +5,6 @@ import { authenticate } from '../middlewares/authenticate.js';
 import { validate } from '../middlewares/validate.js';
 import { upload } from '../middlewares/uploadHandler.js';
 
-import { InvalideImageMimeType } from '../errors/appError.js';
-
 import {
   createCardSchema,
   getMyGalleryQuerySchema,

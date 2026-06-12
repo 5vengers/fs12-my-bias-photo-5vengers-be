@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import { Genre, CardGrade } from '@prisma/client';
 
-import { AppError, PhotoCardLimitError } from '../errors/appError.js';
+import { PhotoCardLimitError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
 // 내 소유 카드 조회

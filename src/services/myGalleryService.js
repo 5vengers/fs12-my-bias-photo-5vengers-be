@@ -1,5 +1,5 @@
 import myGalleryRepository from '../repositories/myGalleryRepository.js';
-import { AppError, InvalidImageFile } from '../errors/appError.js';
+import { InvalidImageFile } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
 const DEFAULT_PAGE = 1;
