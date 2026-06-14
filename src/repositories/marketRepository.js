@@ -52,9 +52,18 @@ export const marketRepository = {
 
   //판매 글 삭제(상태: DELETED로 업데이트)
   deleteMarketItem: async (marketItemId) => {
-    return await prisma.marketItem.update({
-      where: { id: marketItemId },
-      data: { status: 'DELETED' },
+    return prisma.$transaction(async (tx) => {
+      const deletedItem = await tx.marketItem.update({
+        where: { id: marketItemId },
+        data: { status: 'DELETED' },
+      });
+
+      await tx.exchangeProposal.updateMany({
+        where: { marketItemId, status: 'WAITING' },
+        data: { status: 'REJECTED' },
+      });
+
+      return deletedItem;
     });
   },
 
