@@ -18,7 +18,7 @@ const setRefreshTokenCookie = (res, refreshToken) => {
 };
 
 const register = asyncHandler(async (req, res) => {
-  const user = await authService.register(req.body);
+  const user = await authService.register(req.validated.body);
   res.status(201).json({
     success: true,
     message: '회원가입이 완료되었습니다.',
@@ -27,7 +27,7 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.login(req.body);
+  const { user, accessToken, refreshToken } = await authService.login(req.validated.body);
   setRefreshTokenCookie(res, refreshToken);
   res.json({
     success: true,

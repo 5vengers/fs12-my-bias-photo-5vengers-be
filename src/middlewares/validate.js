@@ -9,6 +9,7 @@ import { ValidationError } from '../errors/appError.js';
  * 기존 이메일 인증 라우트: validate(loginSchema)          → req.body 검증
  * Google OAuth 콜백 라우트: validate(googleCallbackSchema, 'query') → req.query 검증
  */
+// validate.js
 export const validate =
   (schema, target = 'body') =>
   (req, res, next) => {
@@ -19,10 +20,10 @@ export const validate =
       return next(new ValidationError(message));
     }
 
-    // req.query는 getter only라 재할당 불가 -> body만 교체
-    if (target === 'body') {
-      req[target] = result.data;
+    if (!req.validated) {
+      req.validated = {};
     }
+    req.validated[target] = result.data;
 
     next();
   };
