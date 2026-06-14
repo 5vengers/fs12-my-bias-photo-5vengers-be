@@ -14,7 +14,14 @@ import orderRouter from './routes/orderRouter.js';
 const app = express();
 
 // 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
-app.use(cors({ credentials: true, origin: true }));
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:3001';
+
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
