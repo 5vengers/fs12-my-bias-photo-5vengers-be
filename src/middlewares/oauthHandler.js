@@ -14,11 +14,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:3001';
 export const googleCallbackHandler = (req, res, next) => {
   // Google 측 에러 조기 처리 (사용자 취소 등)
   if (req.query.error) {
-    const message =
-      req.query.error === 'access_denied'
-        ? '구글 로그인을 취소했습니다.'
-        : `구글 로그인에 실패했습니다. (${req.query.error})`;
-    return next(new OAuthError(message));
+    return res.redirect(`${FRONTEND_URL}/auth/callback?error=OAUTH_ERROR`);
   }
 
   passport.authenticate('google', { session: false }, (err, payload) => {

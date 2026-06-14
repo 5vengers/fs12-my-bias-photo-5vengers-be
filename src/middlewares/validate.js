@@ -19,7 +19,10 @@ export const validate =
       return next(new ValidationError(message));
     }
 
-    // safeParse의 파싱 결과로 교체 (Zod의 타입 변환 / 기본값 적용 반영)
-    req[target] = result.data;
+    // req.query는 getter only라 재할당 불가 -> body만 교체
+    if (target === 'body') {
+      req[target] = result.data;
+    }
+
     next();
   };
