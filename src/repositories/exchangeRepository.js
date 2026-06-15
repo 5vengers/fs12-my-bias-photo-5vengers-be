@@ -268,84 +268,84 @@ const approve = async ({ exchangeId, sellerId }) => {
           );
         }
 
-        const rejected = await tx.exchangeProposal.updateMany({
-          where: {
-            id: exchangeId,
-            status: 'WAITING',
-          },
-          data: {
-            status: 'REJECTED',
-          },
-        });
-
-        if (rejected.count === 0) {
-          throw new AppError(
-            '이미 처리된 교환 신청입니다.',
-            409,
-            ERROR_CODES.EXCHANGE_NOT_WAITING,
-          );
-        }
-
         return tx.exchangeProposal.findUnique({
           where: { id: exchangeId },
+          include: {
+            offeredCard: true,
+            marketItem: {
+              include: { myCard: true },
+            },
+          },
         });
       });
     };
 
-    const cancel = async ({ exchangeId, proposerId }) => {
-      return prisma.$transaction(async (tx) => {
-        const exchange = await tx.exchangeProposal.findUnique({
-          where: { id: exchangeId },
-        });
+    const rejected = await tx.exchangeProposal.updateMany({
+      where: {
+        id: exchangeId,
+        status: 'WAITING',
+      },
+      data: {
+        status: 'REJECTED',
+      },
+    });
 
-        if (!exchange) {
-          throw new AppError(
-            '교환 신청을 찾을 수 없습니다.',
-            404,
-            ERROR_CODES.EXCHANGE_NOT_FOUND,
-          );
-        }
-
-        if (exchange.proposerId !== proposerId) {
-          throw new AppError(
-            '교환 신청을 취소할 권한이 없습니다.',
-            403,
-            ERROR_CODES.FORBIDDEN,
-          );
-        }
-
-        const cancelled = await tx.exchangeProposal.updateMany({
-          where: {
-            id: exchangeId,
-            status: 'WAITING',
-          },
-          data: {
-            status: 'CANCELLED',
-          },
-        });
-
-        if (cancelled.count === 0) {
-          throw new AppError(
-            '이미 처리된 교환 신청입니다.',
-            409,
-            ERROR_CODES.EXCHANGE_NOT_WAITING,
-          );
-        }
-
-        return tx.exchangeProposal.findUnique({
-          where: { id: exchangeId },
-        });
-      });
-    };
+    if (rejected.count === 0) {
+      throw new AppError(
+        '이미 처리된 교환 신청입니다.',
+        409,
+        ERROR_CODES.EXCHANGE_NOT_WAITING,
+      );
+    }
 
     return tx.exchangeProposal.findUnique({
       where: { id: exchangeId },
-      include: {
-        offeredCard: true,
-        marketItem: {
-          include: { myCard: true },
-        },
+    });
+  });
+};
+
+const cancel = async ({ exchangeId, proposerId }) => {
+  return prisma.$transaction(async (tx) => {
+    const exchange = await tx.exchangeProposal.findUnique({
+      where: { id: exchangeId },
+    });
+
+    if (!exchange) {
+      throw new AppError(
+        '교환 신청을 찾을 수 없습니다.',
+        404,
+        ERROR_CODES.EXCHANGE_NOT_FOUND,
+      );
+    }
+
+    if (exchange.proposerId !== proposerId) {
+      throw new AppError(
+        '교환 신청을 취소할 권한이 없습니다.',
+        403,
+        ERROR_CODES.FORBIDDEN,
+      );
+    }
+
+    const cancelled = await tx.exchangeProposal.updateMany({
+      where: {
+        id: exchangeId,
+        status: 'WAITING',
       },
+      data: {
+        status: 'CANCELLED',
+      },
+    });
+
+    if (cancelled.count === 0) {
+      throw new AppError(
+        '이미 처리된 교환 신청입니다.',
+        409,
+        ERROR_CODES.EXCHANGE_NOT_WAITING,
+      );
+    }
+
+    return tx.exchangeProposal.findUnique({
+      where: { id: exchangeId },
     });
   });
 };
