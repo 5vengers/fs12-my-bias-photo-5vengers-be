@@ -10,6 +10,7 @@ import myGalleryRouter from './routes/myGalleryRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import orderRouter from './routes/orderRouter.js';
+import exchangeRouter from './routes/exchangeRouter.js';
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/points', pointRouter);
 app.use('/api', marketRouter);
 app.use('/api/myGallery', myGalleryRouter);
 app.use('/api', orderRouter);
+app.use('/api', exchangeRouter);
 
 // 라우터 등록 후, 404 Not Found 처리 미들웨어와 에러 처리 미들웨어 등록
 app.use(notFoundHandler);

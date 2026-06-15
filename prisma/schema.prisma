@@ -51,6 +51,7 @@ enum ExchangeStatus {
   WAITING
   APPROVED
   REJECTED
+  CANCELLED
 }
 
 enum PointLogType {
