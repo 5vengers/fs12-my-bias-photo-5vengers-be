@@ -3,7 +3,7 @@ import { exchangeService } from '../services/exchangeService.js';
 const create = async (req, res) => {
   const result = await exchangeService.create({
     proposerId: req.user.userId,
-    marketItemId: Number(req.params.itemId),
+    marketItemId: req.params.itemId,
     offeredCardId: req.body.offeredCardId,
   });
 
@@ -22,11 +22,35 @@ const findReceived = async (req, res) => {
 
 const approve = async (req, res) => {
   const result = await exchangeService.approve({
-    exchangeId: Number(req.params.exchangeId),
+    exchangeId: req.params.exchangeId,
     sellerId: req.user.userId,
   });
 
   return res.json({ success: true, data: result });
+};
+
+const reject = async (req, res) => {
+  const result = await exchangeService.reject({
+    exchangeId: req.params.exchangeId,
+    sellerId: req.user.userId,
+  });
+
+  return res.json({
+    success: true,
+    data: result,
+  });
+};
+
+const cancel = async (req, res) => {
+  const result = await exchangeService.cancel({
+    exchangeId: req.params.exchangeId,
+    proposerId: req.user.userId,
+  });
+
+  return res.json({
+    success: true,
+    data: result,
+  });
 };
 
 export const exchangeController = {
@@ -34,4 +58,6 @@ export const exchangeController = {
   findSent,
   findReceived,
   approve,
+  reject,
+  cancel,
 };

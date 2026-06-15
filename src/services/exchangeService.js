@@ -76,9 +76,17 @@ const findReceived = (userId) => exchangeRepository.findReceived(userId);
 const approve = ({ exchangeId, sellerId }) =>
   exchangeRepository.approve({ exchangeId, sellerId });
 
+const reject = ({ exchangeId, sellerId }) =>
+  exchangeRepository.reject({ exchangeId, sellerId });
+
+const cancel = ({ exchangeId, proposerId }) =>
+  exchangeRepository.cancel({ exchangeId, proposerId });
+
 export const exchangeService = {
   create,
   findSent,
   findReceived,
   approve,
+  reject,
+  cancel,
 };
