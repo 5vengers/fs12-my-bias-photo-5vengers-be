@@ -132,6 +132,7 @@ const approve = async ({ exchangeId, sellerId }) => {
       where: {
         id: marketItem.id,
         status: 'SELLING',
+        quantity: marketItem.quantity,
         soldQuantity: { lte: marketItem.quantity - 1 },
       },
       data: { soldQuantity: { increment: 1 } },
@@ -242,7 +243,15 @@ const approve = async ({ exchangeId, sellerId }) => {
       });
     }
 
-    return exchange;
+    return tx.exchangeProposal.findUnique({
+      where: { id: exchangeId },
+      include: {
+        offeredCard: true,
+        marketItem: {
+          include: { myCard: true },
+        },
+      },
+    });
   });
 };
 
