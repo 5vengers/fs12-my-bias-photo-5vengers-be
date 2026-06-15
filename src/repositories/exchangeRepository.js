@@ -17,8 +17,14 @@ const findMyCard = async (myCardId) => {
 
 const getActiveSellingQuantity = async (myCardId) => {
   const listings = await prisma.marketItem.findMany({
-    where: { myCardId, status: 'SELLING' },
-    select: { quantity: true, soldQuantity: true },
+    where: {
+      myCardId,
+      status: 'SELLING',
+    },
+    select: {
+      quantity: true,
+      soldQuantity: true,
+    },
   });
 
   return listings.reduce(
@@ -29,13 +35,21 @@ const getActiveSellingQuantity = async (myCardId) => {
 
 const findWaitingExchange = async (marketItemId, proposerId) => {
   return prisma.exchangeProposal.findFirst({
-    where: { marketItemId, proposerId, status: 'WAITING' },
+    where: {
+      marketItemId,
+      proposerId,
+      status: 'WAITING',
+    },
   });
 };
 
 const create = async ({ marketItemId, proposerId, offeredCardId }) => {
   return prisma.exchangeProposal.create({
-    data: { marketItemId, proposerId, offeredCardId },
+    data: {
+      marketItemId,
+      proposerId,
+      offeredCardId,
+    },
   });
 };
 
@@ -44,20 +58,30 @@ const findSent = async (proposerId) => {
     where: { proposerId },
     include: {
       marketItem: true,
-      offeredCard: { include: { photoCard: true } },
+      offeredCard: {
+        include: { photoCard: true },
+      },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 };
 
 const findReceived = async (sellerId) => {
   return prisma.exchangeProposal.findMany({
-    where: { marketItem: { sellerId } },
+    where: {
+      marketItem: { sellerId },
+    },
     include: {
       marketItem: true,
-      offeredCard: { include: { photoCard: true } },
+      offeredCard: {
+        include: { photoCard: true },
+      },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 };
 
@@ -67,7 +91,9 @@ const approve = async ({ exchangeId, sellerId }) => {
       where: { id: exchangeId },
       include: {
         offeredCard: true,
-        marketItem: { include: { myCard: true } },
+        marketItem: {
+          include: { myCard: true },
+        },
       },
     });
 
@@ -113,10 +139,15 @@ const approve = async ({ exchangeId, sellerId }) => {
       );
     }
 
-    // 같은 신청의 중복 승인 방지
+    // 동일 교환 신청의 중복 승인 방지
     const claimed = await tx.exchangeProposal.updateMany({
-      where: { id: exchangeId, status: 'WAITING' },
-      data: { status: 'APPROVED' },
+      where: {
+        id: exchangeId,
+        status: 'WAITING',
+      },
+      data: {
+        status: 'APPROVED',
+      },
     });
 
     if (claimed.count === 0) {
@@ -127,15 +158,19 @@ const approve = async ({ exchangeId, sellerId }) => {
       );
     }
 
-    // 구매와 교환 승인이 동시에 들어와도 한 요청만 재고 확보
+    // 구매와 교환 승인이 동시에 발생해도 하나만 재고 확보
     const updatedStock = await tx.marketItem.updateMany({
       where: {
         id: marketItem.id,
         status: 'SELLING',
         quantity: marketItem.quantity,
-        soldQuantity: { lte: marketItem.quantity - 1 },
+        soldQuantity: {
+          lte: marketItem.quantity - 1,
+        },
       },
-      data: { soldQuantity: { increment: 1 } },
+      data: {
+        soldQuantity: { increment: 1 },
+      },
     });
 
     if (updatedStock.count === 0) {
@@ -146,25 +181,34 @@ const approve = async ({ exchangeId, sellerId }) => {
       );
     }
 
+    // 신청자가 제안한 카드의 판매 예약 수량 계산
     const reservedQuantity = await tx.marketItem.aggregate({
       where: {
         myCardId: exchange.offeredCardId,
         status: 'SELLING',
       },
-      _sum: { quantity: true, soldQuantity: true },
+      _sum: {
+        quantity: true,
+        soldQuantity: true,
+      },
     });
 
     const reserved =
       (reservedQuantity._sum.quantity ?? 0) -
       (reservedQuantity._sum.soldQuantity ?? 0);
 
+    // 신청자의 제안 카드 차감
     const decreasedOfferedCard = await tx.myCard.updateMany({
       where: {
         id: exchange.offeredCardId,
         ownerId: exchange.proposerId,
-        quantity: { gte: reserved + 1 },
+        quantity: {
+          gte: reserved + 1,
+        },
       },
-      data: { quantity: { decrement: 1 } },
+      data: {
+        quantity: { decrement: 1 },
+      },
     });
 
     if (decreasedOfferedCard.count === 0) {
@@ -175,13 +219,16 @@ const approve = async ({ exchangeId, sellerId }) => {
       );
     }
 
+    // 판매자의 판매 카드 차감
     const decreasedSellerCard = await tx.myCard.updateMany({
       where: {
         id: marketItem.myCardId,
         ownerId: sellerId,
         quantity: { gte: 1 },
       },
-      data: { quantity: { decrement: 1 } },
+      data: {
+        quantity: { decrement: 1 },
+      },
     });
 
     if (decreasedSellerCard.count === 0) {
@@ -192,7 +239,7 @@ const approve = async ({ exchangeId, sellerId }) => {
       );
     }
 
-    // 판매자에게 제안 카드 지급
+    // 판매자에게 신청자의 제안 카드 지급
     await tx.myCard.upsert({
       where: {
         ownerId_photoCardId: {
@@ -200,7 +247,9 @@ const approve = async ({ exchangeId, sellerId }) => {
           photoCardId: exchange.offeredCard.photoCardId,
         },
       },
-      update: { quantity: { increment: 1 } },
+      update: {
+        quantity: { increment: 1 },
+      },
       create: {
         ownerId: sellerId,
         photoCardId: exchange.offeredCard.photoCardId,
@@ -208,7 +257,7 @@ const approve = async ({ exchangeId, sellerId }) => {
       },
     });
 
-    // 신청자에게 판매 카드 지급
+    // 신청자에게 판매자의 카드 지급
     await tx.myCard.upsert({
       where: {
         ownerId_photoCardId: {
@@ -216,7 +265,9 @@ const approve = async ({ exchangeId, sellerId }) => {
           photoCardId: marketItem.myCard.photoCardId,
         },
       },
-      update: { quantity: { increment: 1 } },
+      update: {
+        quantity: { increment: 1 },
+      },
       create: {
         ownerId: exchange.proposerId,
         photoCardId: marketItem.myCard.photoCardId,
@@ -225,60 +276,76 @@ const approve = async ({ exchangeId, sellerId }) => {
     });
 
     const updatedMarketItem = await tx.marketItem.findUnique({
-      where: { id: marketItem.id },
+      where: {
+        id: marketItem.id,
+      },
     });
 
+    // 판매 수량이 모두 소진된 경우 품절 처리
     if (updatedMarketItem.soldQuantity === updatedMarketItem.quantity) {
       await tx.marketItem.update({
-        where: { id: marketItem.id },
-        data: { status: 'SOLD_OUT' },
+        where: {
+          id: marketItem.id,
+        },
+        data: {
+          status: 'SOLD_OUT',
+        },
       });
 
+      // 승인되지 않은 나머지 교환 신청 거절
       await tx.exchangeProposal.updateMany({
         where: {
           marketItemId: marketItem.id,
           status: 'WAITING',
         },
-        data: { status: 'REJECTED' },
+        data: {
+          status: 'REJECTED',
+        },
       });
     }
 
-    const reject = async ({ exchangeId, sellerId }) => {
-      return prisma.$transaction(async (tx) => {
-        const exchange = await tx.exchangeProposal.findUnique({
-          where: { id: exchangeId },
+    return tx.exchangeProposal.findUnique({
+      where: {
+        id: exchangeId,
+      },
+      include: {
+        offeredCard: true,
+        marketItem: {
           include: {
-            marketItem: true,
+            myCard: true,
           },
-        });
+        },
+      },
+    });
+  });
+};
 
-        if (!exchange) {
-          throw new AppError(
-            '교환 신청을 찾을 수 없습니다.',
-            404,
-            ERROR_CODES.EXCHANGE_NOT_FOUND,
-          );
-        }
+const reject = async ({ exchangeId, sellerId }) => {
+  return prisma.$transaction(async (tx) => {
+    const exchange = await tx.exchangeProposal.findUnique({
+      where: {
+        id: exchangeId,
+      },
+      include: {
+        marketItem: true,
+      },
+    });
 
-        if (exchange.marketItem.sellerId !== sellerId) {
-          throw new AppError(
-            '교환 신청을 거절할 권한이 없습니다.',
-            403,
-            ERROR_CODES.FORBIDDEN,
-          );
-        }
+    if (!exchange) {
+      throw new AppError(
+        '교환 신청을 찾을 수 없습니다.',
+        404,
+        ERROR_CODES.EXCHANGE_NOT_FOUND,
+      );
+    }
 
-        return tx.exchangeProposal.findUnique({
-          where: { id: exchangeId },
-          include: {
-            offeredCard: true,
-            marketItem: {
-              include: { myCard: true },
-            },
-          },
-        });
-      });
-    };
+    if (exchange.marketItem.sellerId !== sellerId) {
+      throw new AppError(
+        '교환 신청을 거절할 권한이 없습니다.',
+        403,
+        ERROR_CODES.FORBIDDEN,
+      );
+    }
 
     const rejected = await tx.exchangeProposal.updateMany({
       where: {
@@ -299,7 +366,9 @@ const approve = async ({ exchangeId, sellerId }) => {
     }
 
     return tx.exchangeProposal.findUnique({
-      where: { id: exchangeId },
+      where: {
+        id: exchangeId,
+      },
     });
   });
 };
@@ -307,7 +376,9 @@ const approve = async ({ exchangeId, sellerId }) => {
 const cancel = async ({ exchangeId, proposerId }) => {
   return prisma.$transaction(async (tx) => {
     const exchange = await tx.exchangeProposal.findUnique({
-      where: { id: exchangeId },
+      where: {
+        id: exchangeId,
+      },
     });
 
     if (!exchange) {
@@ -345,7 +416,9 @@ const cancel = async ({ exchangeId, proposerId }) => {
     }
 
     return tx.exchangeProposal.findUnique({
-      where: { id: exchangeId },
+      where: {
+        id: exchangeId,
+      },
     });
   });
 };
