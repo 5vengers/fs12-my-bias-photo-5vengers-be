@@ -79,12 +79,17 @@ const approve = async ({ exchangeId, sellerId }) => {
       );
     }
 
-    if (
-      exchange.status !== 'WAITING' ||
-      exchange.marketItem.sellerId !== sellerId
-    ) {
+    if (exchange.marketItem.sellerId !== sellerId) {
       throw new AppError(
-        '처리할 수 없는 교환 신청입니다.',
+        '교환 신청을 처리할 권한이 없습니다.',
+        403,
+        ERROR_CODES.FORBIDDEN,
+      );
+    }
+
+    if (exchange.status !== 'WAITING') {
+      throw new AppError(
+        '이미 처리된 교환 신청입니다.',
         409,
         ERROR_CODES.EXCHANGE_NOT_WAITING,
       );
