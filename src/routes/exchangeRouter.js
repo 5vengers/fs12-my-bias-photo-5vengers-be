@@ -52,10 +52,4 @@ router.get(
   asyncHandler(exchangeController.findReceived),
 );
 
-router.patch(
-  '/exchanges/:exchangeId/approve',
-  authenticate,
-  asyncHandler(exchangeController.approve),
-);
-
 export default router;
