@@ -12,11 +12,19 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import pointController from './controllers/pointController.js';
 import cors from 'cors';
 import orderRouter from './routes/orderRouter.js';
+import exchangeRouter from './routes/exchangeRouter.js';
 
 const app = express();
 
 // 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
-app.use(cors({ credentials: true, origin: true }));
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:3001';
+
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -32,6 +40,7 @@ app.use('/api/points', pointRouter);
 app.use('/api', marketRouter);
 app.use('/api/myGallery', myGalleryRouter);
 app.use('/api', orderRouter);
+app.use('/api', exchangeRouter);
 
 // 라우터 등록 후, 404 Not Found 처리 미들웨어와 에러 처리 미들웨어 등록
 app.use(notFoundHandler);
