@@ -23,22 +23,24 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
     ? grade
     : undefined;
 
+  const where = {
+    ownerId,
+    photoCard: {
+      ...(keyword && {
+        OR: [
+          { name: { contains: keyword } },
+          { description: { contains: keyword } },
+        ],
+      }),
+      ...(genre && { genre: genreValue }),
+      ...(grade && { grade: gradeValue }),
+    },
+  };
+
   // 기본 카드 조회
   const [cards, total] = await Promise.all([
     prisma.myCard.findMany({
-      where: {
-        ownerId,
-        photoCard: {
-          ...(keyword && {
-            OR: [
-              { name: { contains: keyword } },
-              { description: { contains: keyword } },
-            ],
-          }),
-          ...(genre && { genre: genreValue }),
-          ...(grade && { grade: gradeValue }),
-        },
-      },
+      where,
       select: {
         quantity: true,
         photoCard: {
@@ -54,6 +56,7 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
         marketItems: {
           select: {
             quantity: true,
+            status: true,
           },
           where: {
             status: MarketStatus.SELLING,
@@ -63,36 +66,9 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
       skip,
       take: limit,
     }),
-    await prisma.myCard.findMany({
-      where: {
-        ownerId,
-        photoCard: {
-          ...(keyword && {
-            OR: [
-              { name: { contains: keyword } },
-              { description: { contains: keyword } },
-            ],
-          }),
-          ...(genre && { genre: genreValue }),
-          ...(grade && { grade: gradeValue }),
-        },
-      },
-      select: {
-        quantity: true,
-        photoCard: {
-          select: {
-            grade: true,
-          },
-        },
-        marketItems: {
-          select: {
-            quantity: true,
-          },
-          where: {
-            status: MarketStatus.SELLING,
-          },
-        },
-      },
+
+    prisma.myCard.findMany({
+      where,
     }),
   ]);
 
@@ -110,8 +86,6 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
     cards: data,
     totalPages,
   };
-
-  return result;
 };
 
 // totalCount 및 gradeCount 조회
@@ -130,6 +104,7 @@ const findAllCardCount = async (ownerId) => {
       marketItems: {
         select: {
           quantity: true,
+          status: true,
         },
         where: {
           status: MarketStatus.SELLING,
