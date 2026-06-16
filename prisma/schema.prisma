@@ -188,6 +188,7 @@ model MyCard {
   offeredExchanges ExchangeProposal[] @relation("OfferedCardRelation")
 
   @@unique([ownerId, photoCardId])
+  @@index([ownerId])
   @@map("my_cards")
 }
 
@@ -225,6 +226,7 @@ model MarketItem {
   exchangeProposals ExchangeProposal[]
   orders            Order[]
 
+  @@index([myCardId, status])
   @@map("market_items")
 }
 
