@@ -39,12 +39,38 @@ const calculateMaxAvailableQuantity = async (
 export const marketService = {
   getMarketItems: async (page, limit) => {
     const skip = (page - 1) * limit;
-    const items = await marketRepository.getMarketItems(skip, limit);
+
+    const items = await marketRepository.findMarketItems(skip, limit);
     const totalCount = await marketRepository.countMarketItems();
 
+    const hasNext = skip + items.length < totalCount;
+
     return {
-      items,
-      hasNext: skip + items.length < totalCount,
+      items: items.map((item) => ({
+        id: item.id,
+
+        // 카드 정보 (핵심)
+        imageUrl: item.myCard.photoCard.imageUrl ?? null,
+        title: item.myCard.photoCard.name ?? '',
+
+        // 판매 정보
+        pricePerCard: item.pricePerCard,
+        quantity: item.quantity,
+        soldQuantity: item.soldQuantity,
+
+        // 상태
+        status: item.status,
+        grade: item.grade,
+        genre: item.genre,
+
+        // 판매자
+        sellerNickname: item.seller.nickname ?? 'unkown',
+
+        createdAt: item.createdAt,
+      })),
+
+      hasNext,
+      nextPage: hasNext ? page + 1 : undefined,
     };
   },
 

@@ -9,6 +9,14 @@ export const marketRepository = {
           not: 'DELETED',
         },
       },
+      include: {
+        seller: true,
+        myCard: {
+          include: {
+            photoCard: true,
+          },
+        },
+      },
       skip,
       take: limit,
       orderBy: {
