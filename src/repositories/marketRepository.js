@@ -5,7 +5,9 @@ export const marketRepository = {
   findMarketItems: async (skip, limit) => {
     return await prisma.marketItem.findMany({
       where: {
-        status: 'SELLING',
+        status: {
+          not: 'DELETED',
+        },
       },
       skip,
       take: limit,
@@ -18,16 +20,21 @@ export const marketRepository = {
   countMarketItems: async () => {
     return prisma.marketItem.count({
       where: {
-        status: 'SELLING',
+        status: {
+          not: 'DELETED',
+        },
       },
     });
   },
 
   //판매 카드 상세 조회
-  findMarketItemById: async (itemId) => {
-    return await prisma.marketItem.findUnique({
+  findMarketItemById: async (marketItemId) => {
+    return await prisma.marketItem.findFirst({
       where: {
-        id: itemId,
+        id: marketItemId,
+        status: {
+          not: 'DELETED',
+        },
       },
     });
   },
