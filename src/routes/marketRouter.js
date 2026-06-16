@@ -8,25 +8,25 @@ import { authenticate } from '../middlewares/authenticate.js';
 
 const router = express.Router();
 
-router.get('/market/items', asyncHandler(marketController.getMarketItems));
+router.get('/items', asyncHandler(marketController.getMarketItems));
 router.get(
-  '/market/items/:itemId',
+  '/items/:itemId',
   authenticate,
   asyncHandler(marketController.getMarketItemDetail),
 );
 router.post(
-  '/market/items',
+  '/items',
   authenticate,
   validate(createMarketItemSchema),
   asyncHandler(marketController.createMarketItem),
 );
 router.patch(
-  '/market/items/:itemId',
+  '/items/:itemId',
   authenticate,
   asyncHandler(marketController.updateMarketItem),
 );
 router.delete(
-  '/market/items/:itemId',
+  '/items/:itemId',
   authenticate,
   asyncHandler(marketController.deleteMarketItem),
 );
