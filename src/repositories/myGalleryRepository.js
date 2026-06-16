@@ -67,7 +67,7 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
       take: limit,
     }),
 
-    prisma.myCard.findMany({
+    prisma.myCard.count({
       where,
     }),
   ]);
