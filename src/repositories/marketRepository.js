@@ -2,9 +2,25 @@ import prisma from '../config/prisma.js';
 
 export const marketRepository = {
   //판매 카드 전체 조회
-
-  findMarketItems: async () => {
-    return await prisma.marketItem.findMany();
+  findMarketItems: async (skip, limit) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        status: 'SELLING',
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  },
+  //총 개수 조회
+  countMarketItems: async () => {
+    return prisma.marketItem.count({
+      where: {
+        status: 'SELLING',
+      },
+    });
   },
 
   //판매 카드 상세 조회

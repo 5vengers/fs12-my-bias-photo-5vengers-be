@@ -39,15 +39,8 @@ const calculateMaxAvailableQuantity = async (
 export const marketService = {
   getMarketItems: async (page, limit) => {
     const skip = (page - 1) * limit;
-    const items = await prisma.marketItem.findMany({
-      skip,
-      take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    const totalCount = await prisma.marketItem.count();
+    const items = await marketRepository.getMarketItems(skip, limit);
+    const totalCount = await marketRepository.countMarketItems();
 
     return {
       items,
