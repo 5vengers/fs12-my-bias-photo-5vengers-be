@@ -10,7 +10,6 @@ import myGalleryRouter from './routes/myGalleryRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import pointController from './controllers/pointController.js';
-import cors from 'cors';
 import orderRouter from './routes/orderRouter.js';
 import exchangeRouter from './routes/exchangeRouter.js';
 
@@ -37,7 +36,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/api/auth', authRouter);
 app.use('/api/points', pointRouter);
-app.use('/api', marketRouter);
+app.use('/api/market', marketRouter);
 app.use('/api/myGallery', myGalleryRouter);
 app.use('/api', orderRouter);
 app.use('/api', exchangeRouter);

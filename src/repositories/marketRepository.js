@@ -2,6 +2,7 @@ import prisma from '../config/prisma.js';
 
 export const marketRepository = {
   //판매 카드 전체 조회
+
   findMarketItems: async () => {
     return await prisma.marketItem.findMany();
   },
