@@ -20,6 +20,13 @@ router.get(
   validate(getMyGalleryQuerySchema, 'query'),
   asyncHandler(myGalleryController.getMyGallery),
 );
+
+router.get(
+  '/card-count',
+  authenticate,
+  asyncHandler(myGalleryController.getMyGalleryCount),
+);
+
 router.post(
   '/create',
   authenticate,

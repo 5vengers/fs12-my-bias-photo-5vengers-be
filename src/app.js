@@ -36,7 +36,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRouter);
 app.use('/api/points', pointRouter);
 app.use('/api', marketRouter);
-app.use('/api/myGallery', myGalleryRouter);
+app.use('/api/mygallery', myGalleryRouter);
 app.use('/api', orderRouter);
 app.use('/api', exchangeRouter);
 

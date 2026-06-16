@@ -3,7 +3,7 @@ import { InvalidImageFile } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 6;
+const DEFAULT_PAGE_SIZE = 12;
 
 const nowYearMonth = () => {
   const date = new Date();
@@ -17,32 +17,29 @@ const nowYearMonth = () => {
 };
 
 const getMyCards = async (userId, query) => {
-  const {
-    keyword = '',
-    genre = '',
-    grade = '',
-    page = DEFAULT_PAGE,
-    pageSize = DEFAULT_PAGE_SIZE,
-  } = query;
+  const { keyword = '', genre = '', grade = '', page = DEFAULT_PAGE } = query;
 
   const pageNum = Number(page);
-  const pageSizeNum = Number(pageSize);
+
+  const limit = DEFAULT_PAGE_SIZE;
+  const skip = (pageNum - 1) * limit;
 
   const result = await myGalleryRepository.findAllMyCards(
     userId,
     keyword,
     genre,
     grade,
+    skip,
+    limit,
   );
 
-  // 페이지네이션
-  const totalCount = result.length;
-  const totalPages = Math.ceil(totalCount / pageSizeNum);
-  const skip = (pageNum - 1) * pageSizeNum;
+  return result;
+};
 
-  const paginationCards = result.slice(skip, skip + pageSizeNum);
+const getCardCount = async (userId) => {
+  const result = await myGalleryRepository.findAllCardCount(userId);
 
-  return paginationCards;
+  return result;
 };
 
 const registerCard = async (userId, file, cardData) => {
@@ -77,6 +74,7 @@ const getCreationLog = async (userId) => {
 
 export default {
   getMyCards,
+  getCardCount,
   registerCard,
   getCreationLog,
 };

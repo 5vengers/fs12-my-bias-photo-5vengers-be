@@ -14,6 +14,18 @@ const getMyGallery = async (req, res, next) => {
   });
 };
 
+const getMyGalleryCount = async (req, res, next) => {
+  const { userId } = req.user;
+
+  const result = await myGalleryService.getCardCount(userId);
+
+  return res.status(200).json({
+    success: true,
+    message: '마이 갤러리 카드 개수 조회 성공',
+    data: result,
+  });
+};
+
 const createPhotoCard = async (req, res, next) => {
   const { userId } = req.user;
   const cardData = req.body;
@@ -42,6 +54,7 @@ const getLog = async (req, res, next) => {
 
 export default {
   getMyGallery,
+  getMyGalleryCount,
   createPhotoCard,
   getLog,
 };
