@@ -71,6 +71,7 @@ model MyCard {
   photoCard        PhotoCard          @relation(fields: [photoCardId], references: [id])
 
   @@unique([ownerId, photoCardId])
+  @@index([ownerId])
   @@map("my_cards")
 }
 
@@ -93,6 +94,7 @@ model MarketItem {
   seller            User               @relation(fields: [sellerId], references: [id])
   orders            Order[]
 
+  @@index([myCardId, status])
   @@map("market_items")
 }
 

@@ -51,7 +51,7 @@ export const createCardSchema = z
           return '포토카드 가격은 필수입니다.';
         },
       })
-      .gte(0, '포토카드 판매 금액은 0 이상이어야 합니다.'),
+      .min(1, '포토카드 판매 금액은 1 이상이어야 합니다.'),
 
     totalQuantity: z.coerce
       .number({
@@ -63,7 +63,8 @@ export const createCardSchema = z
           return '포토카드 발행량은 필수입니다.';
         },
       })
-      .lte(10, '총 발행량은 10장 이하입니다.'),
+      .min(1, '포토카드 발행량은 1장 이상이어야 합니다.')
+      .max(10, '총 발행량은 10장 이하입니다.'),
   })
   .strict();
 
