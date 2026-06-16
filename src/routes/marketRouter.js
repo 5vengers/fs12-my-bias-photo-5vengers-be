@@ -7,10 +7,7 @@ import { createMarketItemSchema } from '../schemas/marketSchema.js';
 import { authenticate } from '../middlewares/authenticate.js';
 
 const router = express.Router();
-router.get('/test', (req, res) => {
-  console.log('market test');
-  res.json({ ok: true });
-});
+
 router.get('/items', asyncHandler(marketController.getMarketItems));
 router.get(
   '/items/:itemId',
