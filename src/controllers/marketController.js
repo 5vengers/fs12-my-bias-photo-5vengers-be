@@ -64,4 +64,20 @@ export const marketController = {
       data: result,
     });
   },
+
+  getMyCardMaxQuantity: async (req, res, next) => {
+    const userId = req.user.id;
+    const { myCardId } = req.params;
+
+    const maxQuantity = await marketService.getMyCardMaxQuantity(
+      userId,
+      Number(myCardId),
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: '최대 판매 가능 수 조회 성공',
+      data: result,
+    });
+  },
 };
