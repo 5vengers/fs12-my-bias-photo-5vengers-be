@@ -64,7 +64,7 @@ export const marketService = {
         genre: item.genre,
 
         // 판매자
-        sellerNickname: item.seller.nickname ?? 'unkown',
+        sellerNickname: item.seller.nickname ?? 'unknown',
 
         createdAt: item.createdAt,
       })),
