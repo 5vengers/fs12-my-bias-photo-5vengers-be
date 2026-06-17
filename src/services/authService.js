@@ -62,7 +62,7 @@ const register = async ({ email, password, nickname }) => {
     email: user.email,
     nickname: user.nickname,
     provider: user.provider,
-    created_at: user.createdAt,
+    createdAt: user.createdAt,
   };
 };
 
@@ -86,7 +86,7 @@ const login = async ({ email, password }) => {
       email: user.email,
       nickname: user.nickname,
       provider: user.provider,
-      created_at: user.createdAt,
+      createdAt: user.createdAt,
     },
     accessToken,
     refreshToken,
@@ -141,7 +141,7 @@ const refresh = async (refreshToken) => {
       email: user.email,
       nickname: user.nickname,
       provider: user.provider,
-      created_at: user.createdAt,
+      createdAt: user.createdAt,
     },
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
