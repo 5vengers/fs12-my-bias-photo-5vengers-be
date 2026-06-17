@@ -1,6 +1,7 @@
 import myGalleryRepository from '../repositories/myGalleryRepository.js';
 import { InvalidImageFile } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
+import { uploadToCloudinary } from '../middlewares/uploadHandler.js';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 12;
@@ -47,7 +48,11 @@ const registerCard = async (userId, file, cardData) => {
     throw new InvalidImageFile();
   }
 
-  const imageUrl = file.path;
+  const imagePath = file.buffer;
+
+  const image = await uploadToCloudinary(imagePath);
+
+  const imageUrl = image.secure_url;
 
   const result = await myGalleryRepository.createCard(
     userId,
