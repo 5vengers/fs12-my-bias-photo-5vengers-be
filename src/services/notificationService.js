@@ -34,6 +34,7 @@ const createAndSend = async ({
   // 같은 알림 있으면 생성 안함
   if (preventDuplicate && targetId != null) {
     const existing = await notificationRepository.findByTypeAndTarget(
+      userId,
       type,
       targetId,
     );
