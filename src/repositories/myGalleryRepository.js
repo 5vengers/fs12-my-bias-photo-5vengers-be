@@ -51,6 +51,11 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
             grade: true,
             price: true,
             imageUrl: true,
+            creator: {
+              select: {
+                nickname: true,
+              },
+            },
           },
         },
         marketItems: {
@@ -76,9 +81,12 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
 
   const data = cards.map(({ quantity, photoCard, marketItems }) => {
     const soldQuantity = countSold(marketItems);
+    const { creator, ...cardInfo } = photoCard;
+
     return {
       quantity: quantity - soldQuantity,
-      ...photoCard,
+      nickname: creator.nickname,
+      ...cardInfo,
     };
   });
 

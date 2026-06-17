@@ -47,7 +47,7 @@ const registerCard = async (userId, file, cardData) => {
     throw new InvalidImageFile();
   }
 
-  const imageUrl = `/uploads/${file.filename}`;
+  const imageUrl = file.path;
 
   const result = await myGalleryRepository.createCard(
     userId,

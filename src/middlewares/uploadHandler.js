@@ -1,5 +1,7 @@
 import multer from 'multer';
 import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
 import { InvalidImageMimeType } from '../errors/appError.js';
 
@@ -11,29 +13,23 @@ const ALLOWED_MIME_TYPE = [
   'image/webp',
 ];
 
+const CLOUDINARY_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_KEY = process.env.CLOUDINARY_API_KEY;
+const CLOUDINARY_SECRET = process.env.CLOUDINARY_API_SECRET;
+
+cloudinary.config({
+  cloud_name: CLOUDINARY_NAME,
+  api_key: CLOUDINARY_KEY,
+  api_secret: CLOUDINARY_SECRET,
+});
+
 // 파일 업로드 시 저장 경로
 // upload는 single 로 받고 받은 경로는 req.file 로 표시
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, './uploads');
-  },
-  filename: (req, file, cb) => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hour = String(now.getHours()).padStart(2, '0');
-    const minute = String(now.getMinutes()).padStart(2, '0');
-    const second = String(now.getSeconds()).padStart(2, '0');
-    const millis = String(now.getMilliseconds()).padStart(3, '0');
-
-    const nowDate = `${year}-${month}-${day}-${hour}-${minute}-${second}-${millis}`;
-    const unique = Math.round(Math.random() * 1e9);
-    const exName = path.extname(file.originalname);
-
-    const fileName = `${nowDate}-${unique}-bias-photo${exName}`;
-
-    cb(null, fileName);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'bias-photo/uploads',
+    allowed_formats: ['jpg', 'png', 'gif', 'webp'],
   },
 });
 
