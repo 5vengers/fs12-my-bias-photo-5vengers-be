@@ -30,5 +30,10 @@ router.delete(
   authenticate,
   asyncHandler(marketController.deleteMarketItem),
 );
+router.get(
+  '/items/:myCardId/max',
+  authenticate,
+  asyncHandler(marketController.getMyCardMaxQuantity),
+);
 
 export default router;

@@ -115,6 +115,7 @@ export const marketService = {
     };
   },
 
+  //판매글 생성
   registerMarketItem: async (userId, itemData) => {
     const maxAvailableQuantity = await calculateMaxAvailableQuantity(
       null,
@@ -223,5 +224,70 @@ export const marketService = {
     }
     //삭제 연산 호출
     return await marketRepository.deleteMarketItem(marketItemId);
+  },
+
+  //등록가능 최대수
+  getMyCardMaxQuantity: async (userId, myCardId) => {
+    console.log('서비스로 전달된 userId:', userId);
+    console.log('서비스로 전달된 myCardId:', myCardId);
+    const myCard = await marketRepository.findMyCard(myCardId);
+    if (myCard) {
+      console.log('DB에서 찾은 카드의 ownerId:', myCard.ownerId);
+    }
+    if (!myCard) {
+      throw new AppError(
+        '보유하고 있지 않은 카드입니다.',
+        404,
+        ERROR_CODES.NOT_FOUND,
+      );
+    }
+
+    if (myCard.ownerId !== userId) {
+      throw new AppError(
+        '해당 카드에 대한 접근 권한이 없습니다.',
+        403,
+        ERROR_CODES.FORBIDDEN,
+      );
+    }
+
+    const activeMarketItems = await marketRepository.findActiveMarketItems(
+      myCardId,
+    );
+
+    if (!Array.isArray(activeMarketItems)) {
+      throw new AppError(
+        '서버 데이터 조회 중 오류가 발생했습니다.',
+        500,
+        ERROR_CODES.INTERNAL_ERROR,
+      );
+    }
+
+    const usedQuantity = activeMarketItems.reduce((sum, item) => {
+      if (!item) return sum;
+
+      const available = (item.quantity ?? 0) - (item.soldQuantity ?? 0);
+
+      if (available < 0) {
+        throw new AppError(
+          '서버 데이터에 오류 발생, 판매 수량을 초과한 거래가 존재합니다.',
+          500,
+          ERROR_CODES.INTERNAL_ERROR,
+        );
+      }
+
+      return sum + available;
+    }, 0);
+
+    const result = myCard.quantity - usedQuantity;
+
+    if (result < 0) {
+      throw new AppError(
+        '서버 데이터에 오류 발생, 계산된 최대 수량이 음수입니다.',
+        500,
+        ERROR_CODES.INTERNAL_ERROR,
+      );
+    }
+
+    return result;
   },
 };
