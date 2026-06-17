@@ -39,7 +39,7 @@ export const uploadToCloudinary = (fileBuffer) => {
   return new Promise((resolve, reject) => {
     const uploadCloud = cloudinary.uploader.upload_stream(
       {
-        forder: 'bias-photo/uploads',
+        folder: 'bias-photo/uploads',
         allowed_formats: ['jpg', 'png', 'gif', 'webp'],
       },
       (error, result) => {
