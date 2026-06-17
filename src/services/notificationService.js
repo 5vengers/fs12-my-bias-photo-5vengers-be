@@ -139,19 +139,28 @@ const notifyTradeApproved = async (approvedProposalId) => {
     preventDuplicate: true,
   });
 
-  // 2. approve로 자동 거절된 나머지 제안들 -> 각자 TRADE_REJECTED 알림
-  //    notifyTradeRejected 내부에서 preventDuplicate: true로 중복 방지
-  const autoRejected = await prisma.exchangeProposal.findMany({
-    where: {
-      marketItemId: marketItem.id,
-      id: { not: approvedProposalId },
-      status: 'REJECTED',
-    },
-    select: { id: true },
+  // 2. 품절된 경우에만 나머지 제안자들에게 거절 알림
+  // notifyTradeRejected 내부에서 preventDuplicate: true로 중복 방지
+  const marketItem = await prisma.marketItem.findUnique({
+    where: { id: approved.marketItem.id },
+    select: { status: true },
   });
 
-  // 여러 개 비동기 작업 동시에 실행 + 실패해도 계속 진행
-  await Promise.allSettled(autoRejected.map((p) => notifyTradeRejected(p.id)));
+  if (marketItem.status === 'SOLD_OUT') {
+    const autoRejected = await prisma.exchangeProposal.findMany({
+      where: {
+        marketItemId: approved.marketItem.id,
+        id: { not: exchangeId },
+        status: 'REJECTED',
+      },
+      select: { id: true },
+    });
+
+    // 여러 개 비동기 작업 동시에 실행 + 실패해도 계속 진행
+    await Promise.allSettled(
+      autoRejected.map((p) => notifyTradeRejected(p.id)),
+    );
+  }
 };
 
 /**
