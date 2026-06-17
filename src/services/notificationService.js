@@ -141,16 +141,16 @@ const notifyTradeApproved = async (approvedProposalId) => {
 
   // 2. 품절된 경우에만 나머지 제안자들에게 거절 알림
   // notifyTradeRejected 내부에서 preventDuplicate: true로 중복 방지
-  const marketItem = await prisma.marketItem.findUnique({
+  const updatedMarketItem = await prisma.marketItem.findUnique({
     where: { id: approved.marketItem.id },
     select: { status: true },
   });
 
-  if (marketItem.status === 'SOLD_OUT') {
+  if (updatedMarketItem.status === 'SOLD_OUT') {
     const autoRejected = await prisma.exchangeProposal.findMany({
       where: {
-        marketItemId: approved.marketItem.id,
-        id: { not: exchangeId },
+        marketItemId: marketItem.id,
+        id: { not: approvedProposalId }, 
         status: 'REJECTED',
       },
       select: { id: true },
