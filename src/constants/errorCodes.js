@@ -32,6 +32,7 @@ export const ERROR_CODES = {
   PHOTO_CARD_ALREADY_LIMIT: 'PHOTO_CARD_ALREADY_LIMIT', // 포토 카드 생성 제한 상한  시 (409)
   INVALID_IMAGE_FILE: 'INVALID_IMAGE_FILE', // 이미지를 찾을 수 없을 때 (404)
   INVALID_IMAGE_MIME_TYPE: 'INVALID_IMAGE_MIME_TYPE', // 이미지 파일 형식이 다를 때 (409)
+  CANNOT_FOUND_IMAGE_URL: 'CANNOT_FOUND_IMAGE_URL', // 이미지 URL 을 불러오지 못했을 때 (500)
 
   // 교환 관련 에러 코드
   EXCHANGE_NOT_FOUND: 'EXCHANGE_NOT_FOUND', // 교환이 존재하지 않을 때 (404)
