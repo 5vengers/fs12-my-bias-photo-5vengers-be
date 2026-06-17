@@ -2,6 +2,7 @@ import { orderRepository } from '../repositories/orderRepository.js';
 import { marketRepository } from '../repositories/marketRepository.js';
 import { AppError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
+import { notificationService } from './notificationService.js';
 
 const purchase = async ({ buyerId, marketItemId, quantity }) => {
   const marketItem = await marketRepository.findMarketItemById(marketItemId);
@@ -40,9 +41,6 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
     );
   }
 
-  // 구매 완료 후 품절 여부 사전 계산 (purchase 이후 DB 상태 변경 전 판단)
-  const isSoldOut = remainingQuantity === quantity;
-
   const order = await orderRepository.purchase({
     buyerId,
     marketItemId,
@@ -51,7 +49,7 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
 
   // 알림 전송: 실패해도 구매 결과에 영향 없음
   notificationService
-    .notifyPurchase({ buyerId, marketItemId, quantity, isSoldOut })
+    .notifyPurchase({ buyerId, marketItemId, quantity })
     .catch((err) => console.error('[Notification] notifyPurchase 실패:', err));
 
   return order;

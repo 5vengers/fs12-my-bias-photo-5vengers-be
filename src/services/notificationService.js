@@ -105,7 +105,7 @@ const notifyTradeRequest = async (exchangeProposalId) => {
 
 /**
  * [TRADE_ACCEPTED] 교환 성사 알림 -> 제안자에게
- * [TRADE_REJECTED] 자동 거절 알림  -> 나머지 WAITING 제안자들에게
+ * [TRADE_REJECTED] 품절된 경우 자동 거절 알림  -> 나머지 WAITING 제안자들에게
  * exchangeService.approve() 이후 호출
  */
 const notifyTradeApproved = async (approvedProposalId) => {
@@ -150,7 +150,7 @@ const notifyTradeApproved = async (approvedProposalId) => {
     const autoRejected = await prisma.exchangeProposal.findMany({
       where: {
         marketItemId: marketItem.id,
-        id: { not: approvedProposalId }, 
+        id: { not: approvedProposalId },
         status: 'REJECTED',
       },
       select: { id: true },
@@ -200,17 +200,12 @@ const notifyTradeRejected = async (exchangeProposalId) => {
 /**
  * [CARD_PURCHASED] 구매 완료 알림 -> 구매자에게
  * [CARD_SOLD]      판매 성사 알림 -> 판매자에게
- * [CARD_SOLD_OUT]  품절 알림     -> 판매자에게 (isSoldOut 시에만)
+ * [CARD_SOLD_OUT]  품절 알림     -> 판매자에게
  * orderService.purchase() 이후 호출
  *
  * @param {{ buyerId: string, marketItemId: number, quantity: number, isSoldOut: boolean }} param0
  */
-const notifyPurchase = async ({
-  buyerId,
-  marketItemId,
-  quantity,
-  isSoldOut,
-}) => {
+const notifyPurchase = async ({ buyerId, marketItemId, quantity }) => {
   const [buyer, marketItem] = await Promise.all([
     prisma.user.findUnique({
       where: { id: buyerId },
@@ -221,6 +216,7 @@ const notifyPurchase = async ({
       select: {
         sellerId: true,
         grade: true,
+        status: true,
         myCard: { select: { photoCard: { select: { name: true } } } },
       },
     }),
@@ -254,7 +250,7 @@ const notifyPurchase = async ({
 
   // 품절 시 판매자에게 추가 알림
   // "[LEGENDARY | 우리집 앞마당]이 품절되었습니다."
-  if (isSoldOut) {
+  if (marketItem.status === 'SOLD_OUT') {
     const subjectParticle = getSubjectParticle(cardName);
     await createAndSend({
       userId: marketItem.sellerId,
@@ -262,8 +258,18 @@ const notifyPurchase = async ({
       routeType: 'MY_SELL_CARDS',
       targetId: marketItemId,
       message: `${cardLabel}${subjectParticle} 품절되었습니다.`,
-      preventDuplicate: true, // 동일 마켓 아이템 품절 알림 중복 방지
+      preventDuplicate: true,
     });
+
+    // 구매로 인해 자동 거절된 교환 제안자들에게도 알림
+    // (preventDuplicate: true로 중복 방지)
+    const autoRejected = await prisma.exchangeProposal.findMany({
+      where: { marketItemId, status: 'REJECTED' },
+      select: { id: true },
+    });
+    await Promise.allSettled(
+      autoRejected.map((p) => notifyTradeRejected(p.id)),
+    );
   }
 };
 

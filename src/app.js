@@ -9,7 +9,6 @@ import marketRouter from './routes/marketRouter.js';
 import myGalleryRouter from './routes/myGalleryRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import pointController from './controllers/pointController.js';
 import orderRouter from './routes/orderRouter.js';
 import exchangeRouter from './routes/exchangeRouter.js';
 import notificationRouter from './routes/notificationRouter.js';
