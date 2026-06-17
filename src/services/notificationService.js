@@ -265,6 +265,7 @@ const notifyPurchase = async ({
 /**
  * 알림 목록 + 페이지네이션 + timeAgo 계산
  */
+// default 1 페이지 당 20개 알림
 const getNotifications = async (userId, { page = 1, limit = 20 } = {}) => {
   const skip = (page - 1) * limit;
 
