@@ -72,7 +72,7 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
     }),
   ]);
 
-  const totalPages = Math.ceil(total.length / limit);
+  const totalPages = Math.ceil(total / limit);
 
   const data = cards.map(({ quantity, photoCard, marketItems }) => {
     const soldQuantity = countSold(marketItems);
