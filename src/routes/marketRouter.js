@@ -10,6 +10,11 @@ const router = express.Router();
 
 router.get('/market/items', asyncHandler(marketController.getMarketItems));
 router.get(
+  '/market/items/me',
+  authenticate,
+  asyncHandler(marketController.getMyMarketItems),
+);
+router.get(
   '/market/items/:itemId',
   authenticate,
   asyncHandler(marketController.getMarketItemDetail),

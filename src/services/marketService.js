@@ -40,6 +40,10 @@ export const marketService = {
     return await marketRepository.findMarketItems();
   },
 
+  getMyMarketItems: async (userId) => {
+    return await marketRepository.findMyMarketItems(userId);
+  },
+
   getMarketItemDetail: async (itemId) => {
     const item = await marketRepository.findMarketItemById(itemId);
     if (!item) {

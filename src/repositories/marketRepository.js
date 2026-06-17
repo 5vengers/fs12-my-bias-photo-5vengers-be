@@ -3,7 +3,13 @@ import prisma from '../config/prisma.js';
 export const marketRepository = {
   //판매 카드 전체 조회
   findMarketItems: async () => {
-    return await prisma.marketItem.findMany();
+    return await prisma.marketItem.findMany({
+      include: {
+        myCard: {
+          include: { photoCard: true },
+        },
+      },
+    });
   },
 
   //판매 카드 상세 조회
@@ -11,6 +17,11 @@ export const marketRepository = {
     return await prisma.marketItem.findUnique({
       where: {
         id: itemId,
+      },
+      include: {
+        myCard: {
+          include: { photoCard: true },
+        },
       },
     });
   },
@@ -59,6 +70,22 @@ export const marketRepository = {
   findMyCard: async (myCardId) => {
     return await prisma.myCard.findUnique({
       where: { id: myCardId },
+    });
+  },
+
+  //나의 판매 목록 조회
+  findMyMarketItems: async (userId) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        sellerId: userId,
+        NOT: { status: 'DELETED' },
+      },
+      include: {
+        myCard: {
+          include: { photoCard: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     });
   },
 
