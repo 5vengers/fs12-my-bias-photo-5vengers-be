@@ -25,6 +25,7 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
 
   const where = {
     ownerId,
+
     photoCard: {
       ...(keyword && {
         OR: [
@@ -42,7 +43,15 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
     prisma.myCard.findMany({
       where,
       select: {
+        id: true,
         quantity: true,
+
+        owner: {
+          select: {
+            nickname: true,
+          },
+        },
+
         photoCard: {
           select: {
             name: true,
@@ -74,9 +83,11 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
 
   const totalPages = Math.ceil(total.length / limit);
 
-  const data = cards.map(({ quantity, photoCard, marketItems }) => {
+  const data = cards.map(({ quantity, photoCard, marketItems, id, owner }) => {
     const soldQuantity = countSold(marketItems);
     return {
+      id,
+      nickname: owner.nickname,
       quantity: quantity - soldQuantity,
       ...photoCard,
     };
