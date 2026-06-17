@@ -86,6 +86,7 @@ export const marketService = {
     return item;
   },
 
+  //판매글 생성
   registerMarketItem: async (userId, itemData) => {
     const maxAvailableQuantity = await calculateMaxAvailableQuantity(
       null,
@@ -196,9 +197,14 @@ export const marketService = {
     return await marketRepository.deleteMarketItem(marketItemId);
   },
 
+  //등록가능 최대수
   getMyCardMaxQuantity: async (userId, myCardId) => {
+    console.log('서비스로 전달된 userId:', userId);
+    console.log('서비스로 전달된 myCardId:', myCardId);
     const myCard = await marketRepository.findMyCard(myCardId);
-
+    if (myCard) {
+      console.log('DB에서 찾은 카드의 ownerId:', myCard.ownerId);
+    }
     if (!myCard) {
       throw new AppError(
         '보유하고 있지 않은 카드입니다.',

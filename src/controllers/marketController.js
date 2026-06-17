@@ -31,6 +31,7 @@ export const marketController = {
   createMarketItem: async (req, res) => {
     const userId = req.user.userId;
     const itemData = req.body;
+    console.log('받은 요청 바디:', req.body);
     const result = await marketService.registerMarketItem(userId, itemData);
     return res.status(201).json({
       success: true,
@@ -71,7 +72,7 @@ export const marketController = {
   },
 
   getMyCardMaxQuantity: async (req, res, next) => {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { myCardId } = req.params;
 
     const maxQuantity = await marketService.getMyCardMaxQuantity(
@@ -82,7 +83,7 @@ export const marketController = {
     return res.status(200).json({
       success: true,
       message: '최대 판매 가능 수 조회 성공',
-      data: result,
+      data: maxQuantity,
     });
   },
 };

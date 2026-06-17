@@ -31,7 +31,7 @@ router.delete(
   asyncHandler(marketController.deleteMarketItem),
 );
 router.get(
-  '/items/:itemId/max',
+  '/items/:myCardId/max',
   authenticate,
   asyncHandler(marketController.getMyCardMaxQuantity),
 );
