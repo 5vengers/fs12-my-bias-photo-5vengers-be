@@ -9,7 +9,6 @@ import { ValidationError } from '../errors/appError.js';
  * 기존 이메일 인증 라우트: validate(loginSchema)          → req.body 검증
  * Google OAuth 콜백 라우트: validate(googleCallbackSchema, 'query') → req.query 검증
  */
-// validate.js
 export const validate =
   (schema, target = 'body') =>
   (req, res, next) => {

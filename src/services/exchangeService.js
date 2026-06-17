@@ -1,4 +1,5 @@
 import { exchangeRepository } from '../repositories/exchangeRepository.js';
+import { notificationService } from './notificationService.js';
 import { AppError } from '../errors/appError.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
@@ -63,21 +64,47 @@ const create = async ({ proposerId, marketItemId, offeredCardId }) => {
     );
   }
 
-  return exchangeRepository.create({
+  const proposal = await exchangeRepository.create({
     proposerId,
     marketItemId,
     offeredCardId,
   });
+
+  notificationService
+    .notifyTradeRequest(proposal.id)
+    .catch((err) =>
+      console.error('[Notification] notifyTradeRequest 실패:', err),
+    );
+
+  return proposal;
 };
 
 const findSent = (userId) => exchangeRepository.findSent(userId);
 const findReceived = (userId) => exchangeRepository.findReceived(userId);
 
-const approve = ({ exchangeId, sellerId }) =>
-  exchangeRepository.approve({ exchangeId, sellerId });
+const approve = async ({ exchangeId, sellerId }) => {
+  const result = await exchangeRepository.approve({ exchangeId, sellerId });
 
-const reject = ({ exchangeId, sellerId }) =>
-  exchangeRepository.reject({ exchangeId, sellerId });
+  notificationService
+    .notifyTradeApproved(exchangeId)
+    .catch((err) =>
+      console.error('[Notification] notifyTradeApproved 실패:', err),
+    );
+
+  return result;
+};
+
+const reject = async ({ exchangeId, sellerId }) => {
+  const result = await exchangeRepository.reject({ exchangeId, sellerId });
+
+  notificationService
+    .notifyTradeRejected(exchangeId)
+    .catch((err) =>
+      console.error('[Notification] notifyTradeRejected 실패:', err),
+    );
+
+  return result;
+};
 
 const cancel = ({ exchangeId, proposerId }) =>
   exchangeRepository.cancel({ exchangeId, proposerId });
