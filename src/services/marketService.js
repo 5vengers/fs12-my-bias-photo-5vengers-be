@@ -36,6 +36,7 @@ const calculateMaxAvailableQuantity = async (
   return soldQuantity + myCard.quantity - otherSellingQuantity;
 };
 
+// 목록 조회
 export const marketService = {
   getMarketItems: async (page, limit) => {
     const skip = (page - 1) * limit;
@@ -74,8 +75,10 @@ export const marketService = {
     };
   },
 
+  // 상세 조회
   getMarketItemDetail: async (itemId) => {
     const item = await marketRepository.findMarketItemById(itemId);
+
     if (!item) {
       throw new AppError(
         '해당 마켓 등록 건을 찾을 수 없습니다.',
@@ -83,7 +86,33 @@ export const marketService = {
         ERROR_CODES.MARKET_LISTING_NOT_FOUND,
       );
     }
-    return item;
+
+    return {
+      id: item.id,
+
+      // 카드 정보
+      imageUrl: item.myCard.photoCard.imageUrl ?? null,
+      title: item.myCard.photoCard.name ?? '',
+      description: item.myCard.photoCard.description ?? '',
+      grade: item.grade,
+      genre: item.genre,
+
+      // 판매 정보
+      pricePerCard: item.pricePerCard,
+      quantity: item.quantity,
+      soldQuantity: item.soldQuantity,
+      status: item.status,
+
+      // 판매자 정보
+      sellerNickname: item.seller.nickname ?? 'unknown',
+
+      // 교환 희망 정보
+      wantedGrade: item.wantedGrade,
+      wantedGenre: item.wantedGenre,
+      wantedDescription: item.wantedDescription ?? '',
+
+      createdAt: item.createdAt,
+    };
   },
 
   registerMarketItem: async (userId, itemData) => {

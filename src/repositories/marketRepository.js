@@ -44,6 +44,14 @@ export const marketRepository = {
           not: 'DELETED',
         },
       },
+      include: {
+        seller: true,
+        myCard: {
+          include: {
+            photoCard: true,
+          },
+        },
+      },
     });
   },
 
