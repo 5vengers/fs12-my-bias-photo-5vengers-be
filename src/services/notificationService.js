@@ -146,6 +146,8 @@ const notifyTradeApproved = async (approvedProposalId) => {
     select: { status: true },
   });
 
+  if (!updatedMarketItem) return;
+
   if (updatedMarketItem.status === 'SOLD_OUT') {
     const autoRejected = await prisma.exchangeProposal.findMany({
       where: {
