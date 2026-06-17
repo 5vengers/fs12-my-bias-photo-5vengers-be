@@ -74,7 +74,7 @@ const getUnreadCount = asyncHandler(async (req, res) => {
  * PATCH /api/notifications/read
  * 전체 읽음 처리
  */
-const markAllRead = asyncHandler(async (req, res) => {
+const markAllAsRead = asyncHandler(async (req, res) => {
   const { userId } = req.user;
   await notificationService.markAllAsRead(userId);
   res.json({ success: true, message: '모든 알림을 읽음 처리했습니다.' });
@@ -102,4 +102,4 @@ const markRead = asyncHandler(async (req, res) => {
   res.json({ success: true, message: '알림을 읽음 처리했습니다.' });
 });
 
-export default { stream, getNotifications, getUnreadCount, markAllRead, markRead };
+export default { stream, getNotifications, getUnreadCount, markAllAsRead, markRead };

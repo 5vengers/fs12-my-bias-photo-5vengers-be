@@ -205,7 +205,7 @@ const notifyTradeRejected = async (exchangeProposalId) => {
  * [CARD_SOLD_OUT]  품절 알림     -> 판매자에게
  * orderService.purchase() 이후 호출
  *
- * @param {{ buyerId: string, marketItemId: number, quantity: number, isSoldOut: boolean }} param0
+ * @param {{ buyerId: string, marketItemId: number, quantity: number }} param0
  */
 const notifyPurchase = async ({ buyerId, marketItemId, quantity }) => {
   const [buyer, marketItem] = await Promise.all([
