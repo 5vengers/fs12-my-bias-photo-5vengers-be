@@ -163,3 +163,14 @@ export class InvalidImageMimeType extends AppError {
     );
   }
 }
+
+// 이미지 파일 없음 에러 클래스 추가
+export class CannotFoundImageUrl extends AppError {
+  constructor() {
+    super(
+      '포토카드 이미지 URL 을 불러오지 못했습니다.',
+      500,
+      ERROR_CODES.CANNOT_FOUND_IMAGE_URL,
+    );
+  }
+}
