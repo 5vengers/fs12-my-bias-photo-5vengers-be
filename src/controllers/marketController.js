@@ -1,17 +1,6 @@
 import { marketService } from '../services/marketService.js';
 
 export const marketController = {
-  //나의 판매 목록 조회
-  getMyMarketItems: async (req, res) => {
-    const userId = req.user.id;
-    const result = await marketService.getMyMarketItems(userId);
-    return res.status(200).json({
-      success: true,
-      message: '나의 판매 카드 조회 성공',
-      data: result,
-    });
-  },
-
   //전체 조회
   getMarketItems: async (req, res) => {
     const {

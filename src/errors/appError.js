@@ -119,3 +119,58 @@ export class PointsNotFoundError extends AppError {
     super('포인트 정보를 찾을 수 없습니다.', 404, ERROR_CODES.POINTS_NOT_FOUND);
   }
 }
+
+// 포인트 박스 오픈 쿨다운 중 에러 클래스 추가
+export class PointBoxCooldownError extends AppError {
+  constructor() {
+    super(
+      '포인트 상자는 1시간에 한 번만 열 수 있습니다.',
+      409,
+      ERROR_CODES.POINT_BOX_COOLDOWN,
+    );
+  }
+}
+
+// 포토 카드 생성 에러 클래스 추가
+export class PhotoCardLimitError extends AppError {
+  constructor() {
+    super(
+      '포토 카드는 월 3회 이하로 생성할 수 있습니다.',
+      409,
+      ERROR_CODES.PHOTO_CARD_ALREADY_LIMIT,
+    );
+  }
+}
+
+// 이미지 not found 에러 클래스 추가
+export class InvalidImageFile extends AppError {
+  constructor() {
+    super(
+      '포토 카드 생성에 필요한 이미지를 찾을 수 없습니다.',
+      404,
+      ERROR_CODES.INVALID_IMAGE_FILE,
+    );
+  }
+}
+
+// 이미지 파일 형식 불일치 에러 클래스 추가
+export class InvalidImageMimeType extends AppError {
+  constructor() {
+    super(
+      '이미지 파일 형식이 아닙니다.',
+      409,
+      ERROR_CODES.INVALID_IMAGE_MIME_TYPE,
+    );
+  }
+}
+
+// 이미지 파일 없음 에러 클래스 추가
+export class CannotFoundImageUrl extends AppError {
+  constructor() {
+    super(
+      '포토카드 이미지 URL 을 불러오지 못했습니다.',
+      500,
+      ERROR_CODES.CANNOT_FOUND_IMAGE_URL,
+    );
+  }
+}

@@ -62,7 +62,7 @@ const register = async ({ email, password, nickname }) => {
     email: user.email,
     nickname: user.nickname,
     provider: user.provider,
-    created_at: user.createdAt,
+    createdAt: user.createdAt,
   };
 };
 
@@ -86,7 +86,7 @@ const login = async ({ email, password }) => {
       email: user.email,
       nickname: user.nickname,
       provider: user.provider,
-      created_at: user.createdAt,
+      createdAt: user.createdAt,
     },
     accessToken,
     refreshToken,
@@ -129,10 +129,23 @@ const refresh = async (refreshToken) => {
     throw new InvalidTokenError();
   }
 
+  const user = await authRepository.findUserById(stored.userId);
+  if (!user) throw new UnauthorizedError('존재하지 않는 유저입니다.');
+
   const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
     await issueTokens(stored.userId);
 
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      provider: user.provider,
+      createdAt: user.createdAt,
+    },
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
 };
 
 // ─────────────────────────────────────────────

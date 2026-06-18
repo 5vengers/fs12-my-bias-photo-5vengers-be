@@ -36,13 +36,8 @@ const calculateMaxAvailableQuantity = async (
   return soldQuantity + myCard.quantity - otherSellingQuantity;
 };
 
+// 판매 카드 목록 조회
 export const marketService = {
-  //나의 판매 목록 조회
-  getMyMarketItems: async (userId) => {
-    return await marketRepository.findMyMarketItems(userId);
-  },
-
-  // 판매 카드 목록 조회
   getMarketItems: async ({
     page,
     limit,
