@@ -12,7 +12,7 @@ export const marketController = {
       sort,
       keyword,
     } = req.query;
-    console.log('테스트', req.query);
+
     const result = await marketService.getMarketItems({
       page: Number(page),
       limit: Number(limit),
