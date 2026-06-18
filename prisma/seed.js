@@ -31,78 +31,89 @@ async function main() {
 
   // ── 2. 포토카드 9종 생성 (이미지 3개 재사용) ──
   const photoCardData = [
-    { id: 1,  name: '스페인 여행',        description: '스페인 여행 포토카드',       genre: 'CONCERT',         grade: 'RARE',       price: 150,  totalQuantity: 10, img: 1 },
-    { id: 2,  name: 'How Far I\'ll Go',  description: 'How Far I\'ll Go 포토카드', genre: 'ALBUM',           grade: 'SUPER_RARE', price: 300,  totalQuantity: 5,  img: 2 },
-    { id: 3,  name: '우리집 앞마당',      description: '우리집 앞마당 포토카드',     genre: 'FAN_MEETING',     grade: 'LEGENDARY',  price: 500,  totalQuantity: 3,  img: 3 },
-    { id: 4,  name: '봄날의 콘서트',      description: '봄날 콘서트 포토카드',       genre: 'CONCERT',         grade: 'COMMON',     price: 80,   totalQuantity: 20, img: 1 },
-    { id: 5,  name: '팬사인회 기념',      description: '팬사인회 기념 포토카드',     genre: 'FANSIGN',         grade: 'RARE',       price: 200,  totalQuantity: 8,  img: 2 },
-    { id: 6,  name: '시즌 그리팅 2025',  description: '2025 시즌그리팅 포토카드',  genre: 'SEASON_GREETING', grade: 'COMMON',     price: 100,  totalQuantity: 15, img: 3 },
-    { id: 7,  name: '팬미팅 스페셜',     description: '팬미팅 스페셜 포토카드',    genre: 'FAN_MEETING',     grade: 'SUPER_RARE', price: 350,  totalQuantity: 6,  img: 1 },
-    { id: 8,  name: '콜라보 에디션',     description: '콜라보 한정판 포토카드',    genre: 'COLLAB',          grade: 'LEGENDARY',  price: 600,  totalQuantity: 2,  img: 2 },
-    { id: 9,  name: '앨범 미수록',       description: '앨범 미수록 포토카드',      genre: 'ALBUM',           grade: 'RARE',       price: 250,  totalQuantity: 7,  img: 3 },
+    { name: '스페인 여행',       description: '스페인 여행 포토카드',       genre: 'CONCERT',         grade: 'RARE',       price: 150,  totalQuantity: 10, img: 1 },
+    { name: "How Far I'll Go",  description: "How Far I'll Go 포토카드", genre: 'ALBUM',           grade: 'SUPER_RARE', price: 300,  totalQuantity: 5,  img: 2 },
+    { name: '우리집 앞마당',     description: '우리집 앞마당 포토카드',     genre: 'FAN_MEETING',     grade: 'LEGENDARY',  price: 500,  totalQuantity: 3,  img: 3 },
+    { name: '봄날의 콘서트',     description: '봄날 콘서트 포토카드',       genre: 'CONCERT',         grade: 'COMMON',     price: 80,   totalQuantity: 20, img: 1 },
+    { name: '팬사인회 기념',     description: '팬사인회 기념 포토카드',     genre: 'FANSIGN',         grade: 'RARE',       price: 200,  totalQuantity: 8,  img: 2 },
+    { name: '시즌 그리팅 2025', description: '2025 시즌그리팅 포토카드',  genre: 'SEASON_GREETING', grade: 'COMMON',     price: 100,  totalQuantity: 15, img: 3 },
+    { name: '팬미팅 스페셜',     description: '팬미팅 스페셜 포토카드',    genre: 'FAN_MEETING',     grade: 'SUPER_RARE', price: 350,  totalQuantity: 6,  img: 1 },
+    { name: '콜라보 에디션',     description: '콜라보 한정판 포토카드',    genre: 'COLLAB',          grade: 'LEGENDARY',  price: 600,  totalQuantity: 2,  img: 2 },
+    { name: '앨범 미수록',       description: '앨범 미수록 포토카드',      genre: 'ALBUM',           grade: 'RARE',       price: 250,  totalQuantity: 7,  img: 3 },
   ];
 
-  const photoCards = await Promise.all(
-    photoCardData.map(({ img, ...data }) =>
-      prisma.photoCard.upsert({
-        where: { id: data.id },
-        update: {},
-        create: {
+  const photoCards = [];
+  for (const { img, ...data } of photoCardData) {
+    let card = await prisma.photoCard.findFirst({
+      where: { name: data.name, creatorId: user.id },
+    });
+    if (!card) {
+      card = await prisma.photoCard.create({
+        data: {
           ...data,
           creatorId: user.id,
           imageUrl: `http://localhost:3000/images/img-image${img}.png`,
         },
-      })
-    )
-  );
+      });
+    }
+    photoCards.push(card);
+  }
   console.log('✅ PhotoCards:', photoCards.map((c) => c.name).join(', '));
 
   // ── 3. MyCard 9개 생성 ──
-  const myCardData = [
-    { id: 1, photoCardId: 1, quantity: 5 },
-    { id: 2, photoCardId: 2, quantity: 3 },
-    { id: 3, photoCardId: 3, quantity: 2 },
-    { id: 4, photoCardId: 4, quantity: 8 },
-    { id: 5, photoCardId: 5, quantity: 4 },
-    { id: 6, photoCardId: 6, quantity: 6 },
-    { id: 7, photoCardId: 7, quantity: 2 },
-    { id: 8, photoCardId: 8, quantity: 1 },
-    { id: 9, photoCardId: 9, quantity: 3 },
-  ];
+  const myCardQuantities = [5, 3, 2, 8, 4, 6, 2, 1, 3];
 
-  const myCards = await Promise.all(
-    myCardData.map((data) =>
-      prisma.myCard.upsert({
-        where: { id: data.id },
-        update: {},
-        create: { ...data, ownerId: user.id },
-      })
-    )
-  );
+  const myCards = [];
+  for (let i = 0; i < photoCards.length; i++) {
+    let myCard = await prisma.myCard.findFirst({
+      where: { photoCardId: photoCards[i].id, ownerId: user.id },
+    });
+    if (!myCard) {
+      myCard = await prisma.myCard.create({
+        data: {
+          photoCardId: photoCards[i].id,
+          quantity: myCardQuantities[i],
+          ownerId: user.id,
+        },
+      });
+    }
+    myCards.push(myCard);
+  }
   console.log('✅ MyCards:', myCards.length, '개');
 
   // ── 4. MarketItem 9개 생성 ──
-  const marketItemData = [
-    { id: 1, myCardId: 1, grade: 'RARE',       genre: 'CONCERT',         quantity: 3, soldQuantity: 1, pricePerCard: 150, status: 'SELLING'  },
-    { id: 2, myCardId: 2, grade: 'SUPER_RARE', genre: 'ALBUM',           quantity: 2, soldQuantity: 0, pricePerCard: 300, status: 'SELLING'  },
-    { id: 3, myCardId: 3, grade: 'LEGENDARY',  genre: 'FAN_MEETING',     quantity: 1, soldQuantity: 1, pricePerCard: 500, status: 'SOLD_OUT' },
-    { id: 4, myCardId: 4, grade: 'COMMON',     genre: 'CONCERT',         quantity: 5, soldQuantity: 0, pricePerCard: 80,  status: 'SELLING'  },
-    { id: 5, myCardId: 5, grade: 'RARE',       genre: 'FANSIGN',         quantity: 3, soldQuantity: 1, pricePerCard: 200, status: 'SELLING'  },
-    { id: 6, myCardId: 6, grade: 'COMMON',     genre: 'SEASON_GREETING', quantity: 4, soldQuantity: 2, pricePerCard: 100, status: 'SELLING'  },
-    { id: 7, myCardId: 7, grade: 'SUPER_RARE', genre: 'FAN_MEETING',     quantity: 2, soldQuantity: 0, pricePerCard: 350, status: 'SELLING'  },
-    { id: 8, myCardId: 8, grade: 'LEGENDARY',  genre: 'COLLAB',          quantity: 1, soldQuantity: 0, pricePerCard: 600, status: 'SELLING'  },
-    { id: 9, myCardId: 9, grade: 'RARE',       genre: 'ALBUM',           quantity: 3, soldQuantity: 0, pricePerCard: 250, status: 'SELLING'  },
+  const marketItemDetails = [
+    { grade: 'RARE',       genre: 'CONCERT',         quantity: 3, soldQuantity: 1, pricePerCard: 150, status: 'SELLING'  },
+    { grade: 'SUPER_RARE', genre: 'ALBUM',           quantity: 2, soldQuantity: 0, pricePerCard: 300, status: 'SELLING'  },
+    { grade: 'LEGENDARY',  genre: 'FAN_MEETING',     quantity: 1, soldQuantity: 1, pricePerCard: 500, status: 'SOLD_OUT' },
+    { grade: 'COMMON',     genre: 'CONCERT',         quantity: 5, soldQuantity: 0, pricePerCard: 80,  status: 'SELLING'  },
+    { grade: 'RARE',       genre: 'FANSIGN',         quantity: 3, soldQuantity: 1, pricePerCard: 200, status: 'SELLING'  },
+    { grade: 'COMMON',     genre: 'SEASON_GREETING', quantity: 4, soldQuantity: 2, pricePerCard: 100, status: 'SELLING'  },
+    { grade: 'SUPER_RARE', genre: 'FAN_MEETING',     quantity: 2, soldQuantity: 0, pricePerCard: 350, status: 'SELLING'  },
+    { grade: 'LEGENDARY',  genre: 'COLLAB',          quantity: 1, soldQuantity: 0, pricePerCard: 600, status: 'SELLING'  },
+    { grade: 'RARE',       genre: 'ALBUM',           quantity: 3, soldQuantity: 0, pricePerCard: 250, status: 'SELLING'  },
   ];
 
-  const marketItems = await Promise.all(
-    marketItemData.map((data) =>
-      prisma.marketItem.upsert({
-        where: { id: data.id },
-        update: {},
-        create: { ...data, sellerId: user.id },
-      })
-    )
-  );
+  const marketItems = [];
+  for (let i = 0; i < myCards.length; i++) {
+    let item = await prisma.marketItem.findFirst({
+      where: {
+        myCardId: myCards[i].id,
+        sellerId: user.id,
+        status: { not: 'DELETED' },
+      },
+    });
+    if (!item) {
+      item = await prisma.marketItem.create({
+        data: {
+          ...marketItemDetails[i],
+          myCardId: myCards[i].id,
+          sellerId: user.id,
+        },
+      });
+    }
+    marketItems.push(item);
+  }
   console.log('✅ MarketItems:', marketItems.length, '개');
 
   console.log('🎉 Seed 완료!');
