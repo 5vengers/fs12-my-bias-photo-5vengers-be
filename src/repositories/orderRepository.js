@@ -159,6 +159,15 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
 
     // 모든 판매 수량이 소진된 경우
     if (updatedMarketItem.soldQuantity === updatedMarketItem.quantity) {
+      // 자동 거절 대상 WAITING proposal을 업데이트 전에 미리 조회
+      const waitingProposals = await tx.exchangeProposal.findMany({
+        where: {
+          marketItemId,
+          status: 'WAITING',
+        },
+        select: { id: true },
+      });
+
       await tx.marketItem.update({
         where: { id: marketItemId },
         data: { status: 'SOLD_OUT' },
@@ -170,10 +179,16 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
           marketItemId,
           status: 'WAITING',
         },
-        data: {
-          status: 'REJECTED',
-        },
+        data: { status: 'REJECTED' },
       });
+
+      return {
+        orderId: order.id,
+        quantity,
+        totalPrice,
+        currentPoint: buyerPoint.point,
+        autoRejectedIds: waitingProposals.map((p) => p.id),
+      };
     }
 
     return {
@@ -181,6 +196,7 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
       quantity,
       totalPrice,
       currentPoint: buyerPoint.point,
+      autoRejectedIds: [],
     };
   });
 };
