@@ -15,6 +15,6 @@ router.get(
   notificationController.getUnreadCount,
 );
 router.patch('/read', authenticate, notificationController.markAllAsRead);
-router.patch('/:id/read', authenticate, notificationController.markRead);
+router.patch('/:id/read', authenticate, notificationController.markAsRead);
 
 export default router;

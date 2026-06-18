@@ -28,7 +28,9 @@ const stream = asyncHandler(async (req, res) => {
     res.write(`event: connected\ndata: ${JSON.stringify({ unreadCount })}\n\n`);
   } catch (err) {
     console.error('[SSE] connected 이벤트 전송 실패:', err);
-    res.write(`event: connected\ndata: ${JSON.stringify({ unreadCount: 0 })}\n\n`);
+    res.write(
+      `event: connected\ndata: ${JSON.stringify({ unreadCount: 0 })}\n\n`,
+    );
   }
 
   // 30초마다 주석 ping으로 연결 유지 (프록시/방화벽 타임아웃 방지)
@@ -55,7 +57,10 @@ const getNotifications = asyncHandler(async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
 
-  const result = await notificationService.getNotifications(userId, { page, limit });
+  const result = await notificationService.getNotifications(userId, {
+    page,
+    limit,
+  });
 
   res.json({ success: true, data: result });
 });
@@ -84,12 +89,16 @@ const markAllAsRead = asyncHandler(async (req, res) => {
  * PATCH /api/notifications/:id/read
  * 단일 읽음 처리
  */
-const markRead = asyncHandler(async (req, res) => {
+const markAsRead = asyncHandler(async (req, res) => {
   const { userId } = req.user;
   const id = Number(req.params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError('유효하지 않은 알림 ID입니다.', 400, ERROR_CODES.VALIDATION_ERROR);
+    throw new AppError(
+      '유효하지 않은 알림 ID입니다.',
+      400,
+      ERROR_CODES.VALIDATION_ERROR,
+    );
   }
 
   const result = await notificationService.markAsRead(id, userId);
@@ -102,4 +111,10 @@ const markRead = asyncHandler(async (req, res) => {
   res.json({ success: true, message: '알림을 읽음 처리했습니다.' });
 });
 
-export default { stream, getNotifications, getUnreadCount, markAllAsRead, markRead };
+export default {
+  stream,
+  getNotifications,
+  getUnreadCount,
+  markAllAsRead,
+  markAsRead,
+};

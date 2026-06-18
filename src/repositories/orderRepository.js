@@ -159,21 +159,42 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
 
     // 모든 판매 수량이 소진된 경우
     if (updatedMarketItem.soldQuantity === updatedMarketItem.quantity) {
+      // 자동 거절 대상 WAITING proposal을 업데이트 전에 미리 조회
+      const waitingProposals = await tx.exchangeProposal.findMany({
+        where: {
+          marketItemId,
+          status: 'WAITING',
+        },
+        select: { id: true },
+      });
+
+      const waitingIds = waitingProposals.map((p) => p.id);
+
       await tx.marketItem.update({
         where: { id: marketItemId },
         data: { status: 'SOLD_OUT' },
       });
 
-      // 아직 확정되지 않은 교환 신청 자동 거절
-      await tx.exchangeProposal.updateMany({
-        where: {
-          marketItemId,
-          status: 'WAITING',
-        },
-        data: {
-          status: 'REJECTED',
-        },
-      });
+      if (waitingIds.length > 0) {
+        await tx.exchangeProposal.updateMany({
+          where: {
+            id: { in: waitingIds },
+            status: 'WAITING',
+          },
+          data: {
+            status: 'REJECTED',
+          },
+        });
+      }
+
+      return {
+        orderId: order.id,
+        quantity,
+        totalPrice,
+        currentPoint: buyerPoint.point,
+        autoRejectedIds: waitingIds,
+        isSoldOut: true,
+      };
     }
 
     return {
@@ -181,6 +202,8 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
       quantity,
       totalPrice,
       currentPoint: buyerPoint.point,
+      autoRejectedIds: [],
+      isSoldOut: false,
     };
   });
 };

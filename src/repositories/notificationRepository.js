@@ -29,12 +29,13 @@ const countUnread = (userId) =>
   prisma.notification.count({ where: { userId, isRead: false } });
 
 /**
- * 동일 type + targetId 알림 조회 (중복 생성 방지용)
+ * 동일 userId + type + targetId 알림 조회 (중복 생성 방지용)
+ * @param {string} userId
  * @param {string} type
  * @param {number} targetId
  */
-const findByTypeAndTarget = (type, targetId) =>
-  prisma.notification.findFirst({ where: { type, targetId } });
+const findByTypeAndTarget = (userId, type, targetId) =>
+  prisma.notification.findFirst({ where: { userId, type, targetId } });
 
 /**
  * 전체 읽음 처리
@@ -46,7 +47,7 @@ const markAllAsRead = (userId) =>
   });
 
 /**
- * 단일 알림 읽음 처리 
+ * 단일 알림 읽음 처리
  */
 const markAsRead = (id, userId) =>
   prisma.notification.updateMany({
