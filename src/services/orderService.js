@@ -53,6 +53,7 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
       marketItemId,
       quantity,
       autoRejectedIds: order.autoRejectedIds,
+      isSoldOut: order.isSoldOut,
     })
     .catch((err) => console.error('[Notification] notifyPurchase 실패:', err));
 

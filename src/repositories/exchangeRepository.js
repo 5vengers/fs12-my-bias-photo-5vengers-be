@@ -281,6 +281,8 @@ const approve = async ({ exchangeId, sellerId }) => {
       },
     });
 
+    let waitingIds = [];
+
     // 판매 수량이 모두 소진된 경우 품절 처리
     if (updatedMarketItem.soldQuantity === updatedMarketItem.quantity) {
       // 1. 자동 거절 대상 WAITING proposal을 업데이트 전에 미리 조회
@@ -293,7 +295,7 @@ const approve = async ({ exchangeId, sellerId }) => {
         select: { id: true },
       });
 
-      const waitingIds = waitingProposals.map((p) => p.id);
+      waitingIds = waitingProposals.map((p) => p.id);
 
       // 2. marketItem SOLD_OUT 처리
       await tx.marketItem.update({
@@ -305,27 +307,15 @@ const approve = async ({ exchangeId, sellerId }) => {
       if (waitingIds.length > 0) {
         await tx.exchangeProposal.updateMany({
           where: {
-            id: { in: waitingIds }, // 범위 고정(혹시 그 사이 바뀐 행 방어)
+            id: { in: waitingIds },
             status: 'WAITING',
           },
           data: { status: 'REJECTED' },
         });
       }
-
-      const approvedProposal = await tx.exchangeProposal.findUnique({
-        where: { id: exchangeId },
-        include: {
-          offeredCard: true,
-          marketItem: { include: { myCard: true } },
-        },
-      });
-
-      return {
-        proposal: approvedProposal,
-        autoRejectedIds: waitingIds,
-      };
     }
 
+    // 분기 이후 공통 실행
     const approvedProposal = await tx.exchangeProposal.findUnique({
       where: { id: exchangeId },
       include: {
@@ -336,7 +326,7 @@ const approve = async ({ exchangeId, sellerId }) => {
 
     return {
       proposal: approvedProposal,
-      autoRejectedIds: [],
+      autoRejectedIds: waitingIds,
     };
   });
 };

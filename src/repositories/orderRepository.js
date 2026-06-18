@@ -170,6 +170,11 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
 
       const waitingIds = waitingProposals.map((p) => p.id);
 
+      await tx.marketItem.update({
+        where: { id: marketItemId },
+        data: { status: 'SOLD_OUT' },
+      });
+
       if (waitingIds.length > 0) {
         await tx.exchangeProposal.updateMany({
           where: {
@@ -188,6 +193,7 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
         totalPrice,
         currentPoint: buyerPoint.point,
         autoRejectedIds: waitingIds,
+        isSoldOut: true,
       };
     }
 
@@ -197,6 +203,7 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
       totalPrice,
       currentPoint: buyerPoint.point,
       autoRejectedIds: [],
+      isSoldOut: false,
     };
   });
 };

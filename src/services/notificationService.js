@@ -205,6 +205,7 @@ const notifyPurchase = async ({
   marketItemId,
   quantity,
   autoRejectedIds = [],
+  isSoldOut = false,
 }) => {
   const [buyer, marketItem] = await Promise.all([
     prisma.user.findUnique({
@@ -216,7 +217,6 @@ const notifyPurchase = async ({
       select: {
         sellerId: true,
         grade: true,
-        status: true,
         myCard: { select: { photoCard: { select: { name: true } } } },
       },
     }),
@@ -250,7 +250,7 @@ const notifyPurchase = async ({
 
   // 품절 시 판매자에게 추가 알림
   // "[LEGENDARY | 우리집 앞마당]이 품절되었습니다."
-  if (marketItem.status === 'SOLD_OUT') {
+  if (isSoldOut) {
     const subjectParticle = getSubjectParticle(cardName);
     await createAndSend({
       userId: marketItem.sellerId,
