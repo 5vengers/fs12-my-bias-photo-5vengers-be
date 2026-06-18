@@ -1,5 +1,31 @@
 import prisma from '../config/prisma.js';
+const buildWhere = ({ grade, genre, soldOut, keyword }) => {
+  const where = {
+    ...(grade && { grade }),
+    ...(genre && { genre }),
 
+    ...(keyword && {
+      myCard: {
+        photoCard: {
+          name: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
+        },
+      },
+    }),
+  };
+
+  if (soldOut === 'SELLING' || soldOut === 'SOLD_OUT') {
+    where.status = soldOut;
+  } else {
+    where.status = {
+      not: 'DELETED',
+    };
+  }
+
+  return where;
+};
 export const marketRepository = {
   //판매 카드 전체 조회
   findMarketItems: async ({
@@ -26,28 +52,14 @@ export const marketRepository = {
         orderBy = { pricePerCard: 'desc' };
         break;
     }
-    return await prisma.marketItem.findMany({
-      where: {
-        status: {
-          not: 'DELETED',
-        },
-        ...(grade && { grade }),
-        ...(genre && { genre }),
-
-        ...(soldOut && {
-          status: soldOut,
-        }),
-        ...(keyword && {
-          myCard: {
-            photoCard: {
-              name: {
-                contains: keyword,
-                mode: 'insensitive',
-              },
-            },
-          },
-        }),
-      },
+    const where = buildWhere({
+      grade,
+      genre,
+      soldOut,
+      keyword,
+    });
+    return prisma.marketItem.findMany({
+      where,
       include: {
         seller: true,
         myCard: {
@@ -63,25 +75,14 @@ export const marketRepository = {
   },
   //총 개수 조회
   countMarketItems: async ({ grade, genre, soldOut, keyword }) => {
+    const where = buildWhere({
+      grade,
+      genre,
+      soldOut,
+      keyword,
+    });
     return prisma.marketItem.count({
-      where: {
-        status: {
-          not: 'DELETED',
-        },
-        ...(grade && { grade }),
-        ...(genre && { genre }),
-        ...(soldOut && { status: soldOut }),
-        ...(keyword && {
-          myCard: {
-            photoCard: {
-              name: {
-                contains: keyword,
-                mode: 'insensitive',
-              },
-            },
-          },
-        }),
-      },
+      where,
     });
   },
 
