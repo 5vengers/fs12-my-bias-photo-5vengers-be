@@ -168,26 +168,26 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
         select: { id: true },
       });
 
-      await tx.marketItem.update({
-        where: { id: marketItemId },
-        data: { status: 'SOLD_OUT' },
-      });
+      const waitingIds = waitingProposals.map((p) => p.id);
 
-      // 아직 확정되지 않은 교환 신청 자동 거절
-      await tx.exchangeProposal.updateMany({
-        where: {
-          marketItemId,
-          status: 'WAITING',
-        },
-        data: { status: 'REJECTED' },
-      });
+      if (waitingIds.length > 0) {
+        await tx.exchangeProposal.updateMany({
+          where: {
+            id: { in: waitingIds },
+            status: 'WAITING',
+          },
+          data: {
+            status: 'REJECTED',
+          },
+        });
+      }
 
       return {
         orderId: order.id,
         quantity,
         totalPrice,
         currentPoint: buyerPoint.point,
-        autoRejectedIds: waitingProposals.map((p) => p.id),
+        autoRejectedIds: waitingIds,
       };
     }
 
