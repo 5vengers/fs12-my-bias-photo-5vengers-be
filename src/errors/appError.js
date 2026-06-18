@@ -131,6 +131,12 @@ export class PointBoxCooldownError extends AppError {
   }
 }
 
+export class PhotoCardNotFoundError extends AppError {
+  constructor() {
+    super('해당 포토카드를 찾을 수 없습니다.', 404, ERROR_CODES.PHOTO_CARD_NOT_FOUND);
+  }
+}
+
 // 포토 카드 생성 에러 클래스 추가
 export class PhotoCardLimitError extends AppError {
   constructor() {

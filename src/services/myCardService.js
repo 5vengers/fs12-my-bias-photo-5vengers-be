@@ -1,6 +1,5 @@
 import { myCardRepository } from '../repositories/myCardRepository.js';
-import { AppError } from '../errors/appError.js';
-import { ERROR_CODES } from '../constants/errorCodes.js';
+import { PhotoCardNotFoundError } from '../errors/appError.js';
 
 export const myCardService = {
   // 나의 포토카드 전체 조회
@@ -12,11 +11,7 @@ export const myCardService = {
   getMyCardById: async (myCardId, userId) => {
     const card = await myCardRepository.findMyCardById(myCardId, userId);
     if (!card) {
-      throw new AppError(
-        '해당 포토카드를 찾을 수 없습니다.',
-        404,
-        ERROR_CODES.NOT_FOUND,
-      );
+      throw new PhotoCardNotFoundError();
     }
     return card;
   },
