@@ -1,106 +1,26 @@
 import prisma from '../config/prisma.js';
-const buildWhere = ({ grade, genre, soldOut, keyword }) => {
-  const where = {
-    ...(grade && { grade }),
-    ...(genre && { genre }),
 
-    ...(keyword && {
-      myCard: {
-        photoCard: {
-          name: {
-            contains: keyword,
-            mode: 'insensitive',
-          },
-        },
-      },
-    }),
-  };
-
-  if (soldOut === 'SELLING' || soldOut === 'SOLD_OUT') {
-    where.status = soldOut;
-  } else {
-    where.status = {
-      not: 'DELETED',
-    };
-  }
-
-  return where;
-};
 export const marketRepository = {
   //판매 카드 전체 조회
-  findMarketItems: async ({
-    skip,
-    limit,
-    grade,
-    genre,
-    soldOut,
-    sort,
-    keyword,
-  }) => {
-    let orderBy = { createdAt: 'desc' };
-
-    switch (sort) {
-      case 'oldest':
-        orderBy = { createdAt: 'asc' };
-        break;
-
-      case 'priceAsc':
-        orderBy = { pricePerCard: 'asc' };
-        break;
-
-      case 'priceDesc':
-        orderBy = { pricePerCard: 'desc' };
-        break;
-    }
-    const where = buildWhere({
-      grade,
-      genre,
-      soldOut,
-      keyword,
-    });
-    return prisma.marketItem.findMany({
-      where,
+  findMarketItems: async () => {
+    return await prisma.marketItem.findMany({
       include: {
-        seller: true,
         myCard: {
-          include: {
-            photoCard: true,
-          },
+          include: { photoCard: true },
         },
       },
-      skip,
-      take: limit,
-      orderBy,
-    });
-  },
-  //총 개수 조회
-  countMarketItems: async ({ grade, genre, soldOut, keyword }) => {
-    const where = buildWhere({
-      grade,
-      genre,
-      soldOut,
-      keyword,
-    });
-    return prisma.marketItem.count({
-      where,
     });
   },
 
   //판매 카드 상세 조회
-  findMarketItemById: async (marketItemId) => {
-    return await prisma.marketItem.findFirst({
+  findMarketItemById: async (itemId) => {
+    return await prisma.marketItem.findUnique({
       where: {
-        id: marketItemId,
-        status: {
-          not: 'DELETED',
-        },
+        id: itemId,
       },
       include: {
-        seller: true,
         myCard: {
-          include: {
-            photoCard: true,
-          },
+          include: { photoCard: true },
         },
       },
     });
@@ -109,57 +29,37 @@ export const marketRepository = {
   //판매 등록
   createMarketItem: async (itemData) => {
     return await prisma.marketItem.create({
-      data: {
-        myCardId: itemData.myCardId,
-        quantity: itemData.quantity,
-        pricePerCard: itemData.price_per_card,
-        grade: itemData.wanted_grade,
-        genre: itemData.wanted_genre,
-        wantedDescription: itemData.wanted_description,
-        sellerId: itemData.sellerId,
-      },
+      data: itemData,
     });
   },
 
   //판매 정보 수정
   updateMarketItem: async (itemId, item) => {
-    if (item.quantity === undefined) {
-      return prisma.marketItem.update({
-        where: { id: itemId },
-        data: item,
-      });
-    }
-    const updated = await prisma.marketItem.updateMany({
-      where: {
-        id: itemId,
-        status: 'SELLING',
-        soldQuantity: {
-          lte: item.quantity,
-        },
-      },
+    return await prisma.marketItem.update({
+      where: { id: itemId },
       data: item,
     });
-
-    if (updated.count === 0) {
-      return null;
-    }
-
-    return prisma.marketItem.findUnique({
-      where: { id: itemId },
-    });
   },
+  //판매 글 삭제(상태: DELETED 로 업데이트 처리 후 남은 수량 롤백처리)
+  deleteMarketItemAndRollbackCard: async (
+    marketItemId,
+    myCardId,
+    rollbackQuantity,
+  ) => {
+    //트랜잭션 처리
+    return await prisma.$transaction(async (tx) => {
+      if (rollbackQuantity > 0) {
+        await tx.myCard.update({
+          where: { id: myCardId },
+          data: {
+            quantity: { increment: rollbackQuantity },
+          },
+        });
+      }
 
-  //판매 글 삭제(상태: DELETED로 업데이트)
-  deleteMarketItem: async (marketItemId) => {
-    return prisma.$transaction(async (tx) => {
       const deletedItem = await tx.marketItem.update({
         where: { id: marketItemId },
-        data: { status: 'DELETED' },
-      });
-
-      await tx.exchangeProposal.updateMany({
-        where: { marketItemId, status: 'WAITING' },
-        data: { status: 'REJECTED' },
+        data: { status: 'DELETED' }, // 상태를 DELETED로 변경
       });
 
       return deletedItem;
@@ -170,6 +70,54 @@ export const marketRepository = {
   findMyCard: async (myCardId) => {
     return await prisma.myCard.findUnique({
       where: { id: myCardId },
+    });
+  },
+
+  //나의 판매 목록 조회
+  findMyMarketItems: async (userId) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        sellerId: userId,
+        NOT: { status: 'DELETED' },
+      },
+      include: {
+        myCard: {
+          include: {
+            photoCard: {
+              include: { creator: { select: { nickname: true } } },
+            },
+          },
+        },
+        exchangeProposals: {
+          where: { status: 'WAITING' },
+          select: { id: true },
+        },
+      },
+      orderBy: { id: 'asc' },
+    });
+  },
+
+  //나의 판매 목록 조회
+  findMyMarketItems: async (userId) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        sellerId: userId,
+        NOT: { status: 'DELETED' },
+      },
+      include: {
+        myCard: {
+          include: {
+            photoCard: {
+              include: { creator: { select: { nickname: true } } },
+            },
+          },
+        },
+        exchangeProposals: {
+          where: { status: 'WAITING' },
+          select: { id: true },
+        },
+      },
+      orderBy: { id: 'asc' },
     });
   },
 

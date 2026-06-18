@@ -1,19 +1,7 @@
-import { Router } from 'express';
-import pointController from '../controllers/pointController.js';
-import { authenticate } from '../middlewares/authenticate.js';
-import { asyncHandler } from '../middlewares/asyncHandler.js';
-import { validate } from '../middlewares/validate.js';
-import { openPointBoxSchema } from '../schemas/pointBoxSchema.js';
+import express from 'express';
 
-const router = Router();
+const router = express.Router();
 
-router.get('/me', authenticate, asyncHandler(pointController.getMyPoint));
-
-router.post(
-  '/box',
-  authenticate,
-  validate(openPointBoxSchema),
-  asyncHandler(pointController.openPointBox),
-);
+// TODO: 포인트 관련 API 구현 예정
 
 export default router;
