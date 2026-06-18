@@ -99,3 +99,10 @@ export const getMyGalleryQuerySchema = z.object({
   page: z.coerce.number().min(1).optional(),
   pageSize: z.coerce.number().min(1).optional(),
 });
+
+export const myCardIdParamsSchema = z.object({
+  myCardId: z.coerce
+    .number({ invalid_type_error: '유효하지 않은 카드 ID입니다.' })
+    .int()
+    .positive('카드 ID는 양의 정수여야 합니다.'),
+});
