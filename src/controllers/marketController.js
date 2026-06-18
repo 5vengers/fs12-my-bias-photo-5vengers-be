@@ -3,12 +3,25 @@ import { marketService } from '../services/marketService.js';
 export const marketController = {
   //전체 조회
   getMarketItems: async (req, res) => {
-    const { page = 1, limit = 6 } = req.query;
-
-    const result = await marketService.getMarketItems(
-      Number(page),
-      Number(limit),
-    );
+    const {
+      page = 1,
+      limit = 6,
+      grade,
+      genre,
+      soldOut,
+      sort,
+      keyword,
+    } = req.query;
+    console.log('테스트', req.query);
+    const result = await marketService.getMarketItems({
+      page: Number(page),
+      limit: Number(limit),
+      grade,
+      genre,
+      soldOut,
+      sort,
+      keyword,
+    });
     return res.status(200).json({
       success: true,
       message: '판매 카드 전체 조회 성공',
