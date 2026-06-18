@@ -47,12 +47,21 @@ const purchase = async ({ buyerId, marketItemId, quantity }) => {
     quantity,
   });
 
-  // 알림 전송: 실패해도 구매 결과에 영향 없음
   notificationService
-    .notifyPurchase({ buyerId, marketItemId, quantity })
+    .notifyPurchase({
+      buyerId,
+      marketItemId,
+      quantity,
+      autoRejectedIds: order.autoRejectedIds,
+    })
     .catch((err) => console.error('[Notification] notifyPurchase 실패:', err));
 
-  return order;
+  return {
+    orderId: order.orderId,
+    quantity: order.quantity,
+    totalPrice: order.totalPrice,
+    currentPoint: order.currentPoint,
+  };
 };
 
 export const orderService = { purchase };
