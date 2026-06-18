@@ -82,14 +82,18 @@ export const marketRepository = {
       },
       include: {
         myCard: {
-          include: { photoCard: true },
+          include: {
+            photoCard: {
+              include: { creator: { select: { nickname: true } } },
+            },
+          },
         },
         exchangeProposals: {
           where: { status: 'WAITING' },
           select: { id: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { id: 'asc' },
     });
   },
 

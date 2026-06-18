@@ -4,16 +4,15 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from './config/passport.js';
 import authRouter from './routes/authRouter.js';
-import { authenticate } from './middlewares/authenticate.js';
+import marketRouter from './routes/marketRouter.js';
+import myCardRouter from './routes/myCardRouter.js';
+import pointRouter from './routes/pointRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import pointController from './controllers/pointController.js';
-import cors from 'cors';
-import { marketRouter } from './routes/marketRouter.js';
 
 const app = express();
 
-// 라우터 등록 전에 공통 미들웨어 등록 (CORS, JSON 파싱 등)
+// 공통 미들웨어
 app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -23,16 +22,13 @@ app.get('/', (req, res) => {
   res.json({ message: '서버가 정상적으로 실행 중입니다.' });
 });
 
+// 라우터 등록
 app.use('/api/auth', authRouter);
+app.use('/api', marketRouter);
+app.use('/api', myCardRouter);
+app.use('/api', pointRouter);
 
-app.use('api', marketRouter);
-
-app.use('api', marketRouter);
-
-// 포인트 조회 API
-app.get('/api/points/me', authenticate, pointController.getMyPoint);
-
-// 라우터 등록 후, 404 Not Found 처리 미들웨어와 에러 처리 미들웨어 등록
+// 에러 핸들러
 app.use(notFoundHandler);
 app.use(errorHandler);
 
