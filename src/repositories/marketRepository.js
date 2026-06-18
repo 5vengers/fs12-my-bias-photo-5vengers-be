@@ -97,6 +97,30 @@ export const marketRepository = {
     });
   },
 
+  //나의 판매 목록 조회
+  findMyMarketItems: async (userId) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        sellerId: userId,
+        NOT: { status: 'DELETED' },
+      },
+      include: {
+        myCard: {
+          include: {
+            photoCard: {
+              include: { creator: { select: { nickname: true } } },
+            },
+          },
+        },
+        exchangeProposals: {
+          where: { status: 'WAITING' },
+          select: { id: true },
+        },
+      },
+      orderBy: { id: 'asc' },
+    });
+  },
+
   //내 판매 카드 수량 조회
   findActiveMarketItems: async (myCardId) => {
     return await prisma.marketItem.findMany({

@@ -1,4 +1,3 @@
-import { success } from 'zod';
 import { marketService } from '../services/marketService.js';
 
 export const marketController = {
@@ -15,7 +14,25 @@ export const marketController = {
 
   //전체 조회
   getMarketItems: async (req, res) => {
-    const result = await marketService.getMarketItems();
+    const {
+      page = 1,
+      limit = 6,
+      grade,
+      genre,
+      soldOut,
+      sort,
+      keyword,
+    } = req.query;
+    console.log('테스트', req.query);
+    const result = await marketService.getMarketItems({
+      page: Number(page),
+      limit: Number(limit),
+      grade,
+      genre,
+      soldOut,
+      sort,
+      keyword,
+    });
     return res.status(200).json({
       success: true,
       message: '판매 카드 전체 조회 성공',
@@ -36,8 +53,9 @@ export const marketController = {
 
   //  판매 등록
   createMarketItem: async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const itemData = req.body;
+    console.log('받은 요청 바디:', req.body);
     const result = await marketService.registerMarketItem(userId, itemData);
     return res.status(201).json({
       success: true,
@@ -49,7 +67,7 @@ export const marketController = {
   // 정보 수정
   updateMarketItem: async (req, res) => {
     const { itemId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const itemData = req.body;
 
     const result = await marketService.updateMarketItem(
@@ -67,13 +85,29 @@ export const marketController = {
   // 판매 삭제
   deleteMarketItem: async (req, res) => {
     const { itemId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const result = await marketService.deleteMarketItem(userId, Number(itemId));
     return res.status(200).json({
       success: true,
       message: '판매 카드 삭제 성공',
       data: result,
+    });
+  },
+
+  getMyCardMaxQuantity: async (req, res, next) => {
+    const userId = req.user.userId;
+    const { myCardId } = req.params;
+
+    const maxQuantity = await marketService.getMyCardMaxQuantity(
+      userId,
+      Number(myCardId),
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: '최대 판매 가능 수 조회 성공',
+      data: maxQuantity,
     });
   },
 };
