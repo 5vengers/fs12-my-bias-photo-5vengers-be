@@ -1,14 +1,65 @@
 import prisma from '../config/prisma.js';
+const buildWhere = ({ grade, genre, soldOut, keyword }) => {
+  const where = {
+    ...(grade && { grade }),
+    ...(genre && { genre }),
 
-export const marketRepository = {
-  //판매 카드 전체 조회
-  findMarketItems: async (skip, limit) => {
-    return await prisma.marketItem.findMany({
-      where: {
-        status: {
-          not: 'DELETED',
+    ...(keyword && {
+      myCard: {
+        photoCard: {
+          name: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
         },
       },
+    }),
+  };
+
+  if (soldOut === 'SELLING' || soldOut === 'SOLD_OUT') {
+    where.status = soldOut;
+  } else {
+    where.status = {
+      not: 'DELETED',
+    };
+  }
+
+  return where;
+};
+export const marketRepository = {
+  //판매 카드 전체 조회
+  findMarketItems: async ({
+    skip,
+    limit,
+    grade,
+    genre,
+    soldOut,
+    sort,
+    keyword,
+  }) => {
+    let orderBy = { createdAt: 'desc' };
+
+    switch (sort) {
+      case 'oldest':
+        orderBy = { createdAt: 'asc' };
+        break;
+
+      case 'priceAsc':
+        orderBy = { pricePerCard: 'asc' };
+        break;
+
+      case 'priceDesc':
+        orderBy = { pricePerCard: 'desc' };
+        break;
+    }
+    const where = buildWhere({
+      grade,
+      genre,
+      soldOut,
+      keyword,
+    });
+    return prisma.marketItem.findMany({
+      where,
       include: {
         seller: true,
         myCard: {
@@ -19,19 +70,19 @@ export const marketRepository = {
       },
       skip,
       take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
     });
   },
   //총 개수 조회
-  countMarketItems: async () => {
+  countMarketItems: async ({ grade, genre, soldOut, keyword }) => {
+    const where = buildWhere({
+      grade,
+      genre,
+      soldOut,
+      keyword,
+    });
     return prisma.marketItem.count({
-      where: {
-        status: {
-          not: 'DELETED',
-        },
-      },
+      where,
     });
   },
 

@@ -36,13 +36,34 @@ const calculateMaxAvailableQuantity = async (
   return soldQuantity + myCard.quantity - otherSellingQuantity;
 };
 
-// 목록 조회
+// 판매 카드 목록 조회
 export const marketService = {
-  getMarketItems: async (page, limit) => {
+  getMarketItems: async ({
+    page,
+    limit,
+    grade,
+    genre,
+    soldOut,
+    sort,
+    keyword,
+  }) => {
     const skip = (page - 1) * limit;
 
-    const items = await marketRepository.findMarketItems(skip, limit);
-    const totalCount = await marketRepository.countMarketItems();
+    const items = await marketRepository.findMarketItems({
+      skip,
+      limit,
+      grade,
+      genre,
+      soldOut,
+      sort,
+      keyword,
+    });
+    const totalCount = await marketRepository.countMarketItems({
+      grade,
+      genre,
+      soldOut,
+      keyword,
+    });
 
     const hasNext = skip + items.length < totalCount;
 
