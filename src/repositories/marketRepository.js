@@ -58,7 +58,15 @@ export const marketRepository = {
   //판매 등록
   createMarketItem: async (itemData) => {
     return await prisma.marketItem.create({
-      data: itemData,
+      data: {
+        myCardId: itemData.myCardId,
+        quantity: itemData.quantity,
+        pricePerCard: itemData.price_per_card,
+        grade: itemData.wanted_grade,
+        genre: itemData.wanted_genre,
+        wantedDescription: itemData.wanted_description,
+        sellerId: itemData.sellerId,
+      },
     });
   },
 
