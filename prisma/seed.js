@@ -7,13 +7,18 @@ async function main() {
   console.log('🌱 Seeding...');
 
   // ── 1. 테스트 유저 생성 ──
-  const hashedPassword = await bcrypt.hash('test1234!', 10);
+  const seedEmail = process.env.SEED_USER_EMAIL;
+  const seedPassword = process.env.SEED_USER_PASSWORD;
+  if (!seedEmail || !seedPassword) {
+    throw new Error('SEED_USER_EMAIL/SEED_USER_PASSWORD must be set');
+  }
+  const hashedPassword = await bcrypt.hash(seedPassword, 10);
 
   const user = await prisma.user.upsert({
-    where: { email: 'test@test.com' },
+    where: { email: seedEmail },
     update: {},
     create: {
-      email: 'test@test.com',
+      email: seedEmail,
       password: hashedPassword,
       nickname: '테스트유저',
       provider: 'LOCAL',
@@ -22,7 +27,7 @@ async function main() {
       },
     },
   });
-  console.log('✅ User:', user.email);
+  console.log('✅ User seeded');
 
   // ── 2. 포토카드 9종 생성 (이미지 3개 재사용) ──
   const photoCardData = [
@@ -101,10 +106,7 @@ async function main() {
   console.log('✅ MarketItems:', marketItems.length, '개');
 
   console.log('🎉 Seed 완료!');
-  console.log('');
-  console.log('📌 테스트 계정:');
-  console.log('   이메일: test@test.com');
-  console.log('   비밀번호: test1234!');
+  console.log('📌 테스트 계정 시드 완료');
 }
 
 main()
