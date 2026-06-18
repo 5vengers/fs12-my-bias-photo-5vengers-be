@@ -86,12 +86,12 @@ const approve = async ({ exchangeId, sellerId }) => {
   const result = await exchangeRepository.approve({ exchangeId, sellerId });
 
   notificationService
-    .notifyTradeApproved(exchangeId)
+    .notifyTradeApproved(exchangeId, result.autoRejectedIds)
     .catch((err) =>
       console.error('[Notification] notifyTradeApproved 실패:', err),
     );
 
-  return result;
+  return result.proposal;
 };
 
 const reject = async ({ exchangeId, sellerId }) => {

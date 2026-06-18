@@ -6,6 +6,12 @@ import { ERROR_CODES } from '../constants/errorCodes.js';
  * Express 에러 처리 미들웨어는 반드시 네 개의 매개변수 (error, req, res, next)를 가져야 함
  */
 export const errorHandler = (error, req, res, next) => {
+  // SSE 등 스트리밍 응답에서 헤더가 이미 전송된 경우 json 응답 불가
+  if (res.headersSent) {
+    console.error('[ErrorHandler] 헤더 전송 이후 에러 발생:', error);
+    return res.end();
+  }
+
   // Prisma 에러방지(Race Condition)
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2002') {

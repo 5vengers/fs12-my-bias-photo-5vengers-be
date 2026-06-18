@@ -20,7 +20,7 @@ import {
  *   routeType: import('@prisma/client').RouteType,
  *   targetId?: number,
  *   message: string,
- *   preventDuplicate?: boolean  // true 시 동일 (type, targetId) 알림이 있으면 스킵
+ *   preventDuplicate?: boolean  // true 시 동일 (userId, type, targetId) 알림이 있으면 스킵
  * }} param0
  */
 const createAndSend = async ({
@@ -34,6 +34,7 @@ const createAndSend = async ({
   // 같은 알림 있으면 생성 안함
   if (preventDuplicate && targetId != null) {
     const existing = await notificationRepository.findByTypeAndTarget(
+      userId,
       type,
       targetId,
     );
@@ -105,10 +106,17 @@ const notifyTradeRequest = async (exchangeProposalId) => {
 
 /**
  * [TRADE_ACCEPTED] 교환 성사 알림 -> 제안자에게
- * [TRADE_REJECTED] 품절된 경우 자동 거절 알림  -> 나머지 WAITING 제안자들에게
+ * [TRADE_REJECTED] 품절된 경우 자동 거절 알림 -> 나머지 WAITING 제안자들에게
  * exchangeService.approve() 이후 호출
+ *
+ * @param {number} approvedProposalId
+ * @param {number[]} autoRejectedIds - approve 트랜잭션에서 자동 거절된 proposal ID 목록
+ *                                     (이전 수동 거절 포함 방지를 위해 트랜잭션 반환값 사용)
  */
-const notifyTradeApproved = async (approvedProposalId) => {
+const notifyTradeApproved = async (
+  approvedProposalId,
+  autoRejectedIds = [],
+) => {
   const approved = await prisma.exchangeProposal.findUnique({
     where: { id: approvedProposalId },
     select: {
@@ -139,28 +147,13 @@ const notifyTradeApproved = async (approvedProposalId) => {
     preventDuplicate: true,
   });
 
-  // 2. 품절된 경우에만 나머지 제안자들에게 거절 알림
-  // notifyTradeRejected 내부에서 preventDuplicate: true로 중복 방지
-  const updatedMarketItem = await prisma.marketItem.findUnique({
-    where: { id: approved.marketItem.id },
-    select: { status: true },
-  });
-
-  if (!updatedMarketItem) return;
-
-  if (updatedMarketItem.status === 'SOLD_OUT') {
-    const autoRejected = await prisma.exchangeProposal.findMany({
-      where: {
-        marketItemId: marketItem.id,
-        id: { not: approvedProposalId },
-        status: 'REJECTED',
-      },
-      select: { id: true },
-    });
-
+  // 2. 품절로 인해 자동 거절된 제안자들에게 거절 알림
+  // approve 트랜잭션에서 반환받은 ID 목록만 사용
+  // status: 'REJECTED' 전체 조회 시 이전 수동 거절 proposal까지 포함되는 문제 방지
+  if (autoRejectedIds.length > 0) {
     // 여러 개 비동기 작업 동시에 실행 + 실패해도 계속 진행
     await Promise.allSettled(
-      autoRejected.map((p) => notifyTradeRejected(p.id)),
+      autoRejectedIds.map((id) => notifyTradeRejected(id)),
     );
   }
 };
@@ -205,9 +198,15 @@ const notifyTradeRejected = async (exchangeProposalId) => {
  * [CARD_SOLD_OUT]  품절 알림     -> 판매자에게
  * orderService.purchase() 이후 호출
  *
- * @param {{ buyerId: string, marketItemId: number, quantity: number }} param0
+ * @param {{ buyerId: string, marketItemId: number, quantity: number, autoRejectedIds: number[] }} param0
  */
-const notifyPurchase = async ({ buyerId, marketItemId, quantity }) => {
+const notifyPurchase = async ({
+  buyerId,
+  marketItemId,
+  quantity,
+  autoRejectedIds = [],
+  isSoldOut = false,
+}) => {
   const [buyer, marketItem] = await Promise.all([
     prisma.user.findUnique({
       where: { id: buyerId },
@@ -218,7 +217,6 @@ const notifyPurchase = async ({ buyerId, marketItemId, quantity }) => {
       select: {
         sellerId: true,
         grade: true,
-        status: true,
         myCard: { select: { photoCard: { select: { name: true } } } },
       },
     }),
@@ -252,7 +250,7 @@ const notifyPurchase = async ({ buyerId, marketItemId, quantity }) => {
 
   // 품절 시 판매자에게 추가 알림
   // "[LEGENDARY | 우리집 앞마당]이 품절되었습니다."
-  if (marketItem.status === 'SOLD_OUT') {
+  if (isSoldOut) {
     const subjectParticle = getSubjectParticle(cardName);
     await createAndSend({
       userId: marketItem.sellerId,
@@ -264,14 +262,13 @@ const notifyPurchase = async ({ buyerId, marketItemId, quantity }) => {
     });
 
     // 구매로 인해 자동 거절된 교환 제안자들에게도 알림
-    // (preventDuplicate: true로 중복 방지)
-    const autoRejected = await prisma.exchangeProposal.findMany({
-      where: { marketItemId, status: 'REJECTED' },
-      select: { id: true },
-    });
-    await Promise.allSettled(
-      autoRejected.map((p) => notifyTradeRejected(p.id)),
-    );
+    // purchase 트랜잭션에서 반환받은 ID 목록만 사용
+    // status: 'REJECTED' 전체 조회 시 이전 수동 거절 proposal까지 포함되는 문제 방지
+    if (autoRejectedIds.length > 0) {
+      await Promise.allSettled(
+        autoRejectedIds.map((id) => notifyTradeRejected(id)),
+      );
+    }
   }
 };
 
