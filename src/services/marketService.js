@@ -144,7 +144,7 @@ export const marketService = {
       itemData.myCardId,
       userId,
     );
-    ㄴ;
+
     if (itemData.quantity > maxAvailableQuantity) {
       throw new AppError(
         '보유 수량보다 많은 수를 등록할 수 없습니다.',
