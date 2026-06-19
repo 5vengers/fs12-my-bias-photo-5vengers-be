@@ -125,6 +125,7 @@ export const marketService = {
       status: item.status,
 
       // 판매자 정보
+      sellerId: item.sellerId,
       sellerNickname: item.seller.nickname ?? 'unknown',
 
       // 교환 희망 정보
@@ -271,9 +272,8 @@ export const marketService = {
       );
     }
 
-    const activeMarketItems = await marketRepository.findActiveMarketItems(
-      myCardId,
-    );
+    const activeMarketItems =
+      await marketRepository.findActiveMarketItems(myCardId);
 
     if (!Array.isArray(activeMarketItems)) {
       throw new AppError(
