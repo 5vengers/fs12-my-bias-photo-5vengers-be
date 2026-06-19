@@ -101,7 +101,6 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
 
       return {
         id,
-        nickname: owner.nickname,
         quantity: quantity - soldQuantity,
         nickname: creator.nickname,
         ...cardInfo,
