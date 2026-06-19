@@ -88,18 +88,24 @@ const findAllMyCards = async (ownerId, keyword, genre, grade, skip, limit) => {
 
   const totalPages = Math.ceil(total / limit);
 
-  const data = cards.map(({ quantity, photoCard, marketItems, id, owner }) => {
-    const soldQuantity = countSold(marketItems);
-    const { creator, ...cardInfo } = photoCard;
+  const data = cards
+    .filter(({ quantity, photoCard, marketItems }) => {
+      const soldQuantity = countSold(marketItems);
 
-    return {
-      id,
-      nickname: owner.nickname,
-      quantity: quantity - soldQuantity,
-      nickname: creator.nickname,
-      ...cardInfo,
-    };
-  });
+      return quantity - soldQuantity !== 0;
+    })
+    .map(({ quantity, photoCard, marketItems, id, owner }) => {
+      const soldQuantity = countSold(marketItems);
+
+      const { creator, ...cardInfo } = photoCard;
+
+      return {
+        id,
+        quantity: quantity - soldQuantity,
+        nickname: creator.nickname,
+        ...cardInfo,
+      };
+    });
 
   return {
     cards: data,
