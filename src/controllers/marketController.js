@@ -44,7 +44,6 @@ export const marketController = {
   createMarketItem: async (req, res) => {
     const userId = req.user.userId;
     const itemData = req.body;
-    console.log('받은 요청 바디:', req.body);
     const result = await marketService.registerMarketItem(userId, itemData);
     return res.status(201).json({
       success: true,
