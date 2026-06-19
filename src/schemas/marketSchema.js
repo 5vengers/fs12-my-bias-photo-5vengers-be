@@ -14,8 +14,10 @@ export const createMarketItemSchema = z.object({
   wanted_description: z.string().nullable().optional(),
 });
 
-//상세조회
+export const itemIdParamsSchema = z.object({
+  itemId: z.coerce
+    .number({ invalid_type_error: '유효하지 않은 아이템 ID입니다.' })
+    .int()
+    .positive('아이템 ID는 양의 정수여야 합니다.'),
+});
 
-//수정
-
-//삭제

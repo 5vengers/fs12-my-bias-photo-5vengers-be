@@ -3,7 +3,8 @@ import express from 'express';
 import { marketController } from '../controllers/marketController.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { validate } from '../middlewares/validate.js';
-import { createMarketItemSchema } from '../schemas/marketSchema.js';
+import { createMarketItemSchema, itemIdParamsSchema } from '../schemas/marketSchema.js';
+import { myCardIdParamsSchema } from '../schemas/myGallerySchema.js';
 import { authenticate } from '../middlewares/authenticate.js';
 
 const router = express.Router();
@@ -12,6 +13,7 @@ router.get('/items', asyncHandler(marketController.getMarketItems));
 router.get(
   '/items/:itemId',
   authenticate,
+  validate(itemIdParamsSchema, 'params'),
   asyncHandler(marketController.getMarketItemDetail),
 );
 router.post(
@@ -23,16 +25,19 @@ router.post(
 router.patch(
   '/items/:itemId',
   authenticate,
+  validate(itemIdParamsSchema, 'params'),
   asyncHandler(marketController.updateMarketItem),
 );
 router.delete(
   '/items/:itemId',
   authenticate,
+  validate(itemIdParamsSchema, 'params'),
   asyncHandler(marketController.deleteMarketItem),
 );
 router.get(
   '/items/:myCardId/max',
   authenticate,
+  validate(myCardIdParamsSchema, 'params'),
   asyncHandler(marketController.getMyCardMaxQuantity),
 );
 

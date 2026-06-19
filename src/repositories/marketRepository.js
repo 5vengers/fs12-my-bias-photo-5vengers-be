@@ -73,6 +73,7 @@ export const marketRepository = {
       orderBy,
     });
   },
+
   //총 개수 조회
   countMarketItems: async ({ grade, genre, soldOut, keyword }) => {
     const where = buildWhere({
@@ -163,6 +164,30 @@ export const marketRepository = {
       });
 
       return deletedItem;
+    });
+  },
+
+  //나의 판매 목록 조회
+  findMyMarketItems: async (userId) => {
+    return await prisma.marketItem.findMany({
+      where: {
+        sellerId: userId,
+        NOT: { status: 'DELETED' },
+      },
+      include: {
+        myCard: {
+          include: {
+            photoCard: {
+              include: { creator: { select: { nickname: true } } },
+            },
+          },
+        },
+        exchangeProposals: {
+          where: { status: 'WAITING' },
+          select: { id: true },
+        },
+      },
+      orderBy: { id: 'asc' },
     });
   },
 
