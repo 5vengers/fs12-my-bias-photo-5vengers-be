@@ -144,6 +144,7 @@ export const marketService = {
       itemData.myCardId,
       userId,
     );
+    console.log('itemData', itemData);
 
     if (itemData.quantity > maxAvailableQuantity) {
       throw new AppError(
@@ -152,7 +153,15 @@ export const marketService = {
         ERROR_CODES.VALIDATION_ERROR,
       );
     }
-    return marketRepository.createMarketItem({ ...itemData, sellerId: userId });
+
+    const myCard = await marketRepository.findMyCard(itemData.myCardId);
+    console.log(myCard);
+    return marketRepository.createMarketItem({
+      ...itemData,
+      sellerId: userId,
+      grade: myCard.photoCard.grade,
+      genre: myCard.photoCard.genre,
+    });
   },
 
   updateMarketItem: async (currentUserId, marketItemId, updateData) => {
@@ -272,8 +281,9 @@ export const marketService = {
       );
     }
 
-    const activeMarketItems =
-      await marketRepository.findActiveMarketItems(myCardId);
+    const activeMarketItems = await marketRepository.findActiveMarketItems(
+      myCardId,
+    );
 
     if (!Array.isArray(activeMarketItems)) {
       throw new AppError(

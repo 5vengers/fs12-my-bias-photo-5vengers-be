@@ -114,8 +114,10 @@ export const marketRepository = {
         myCardId: itemData.myCardId,
         quantity: itemData.quantity,
         pricePerCard: itemData.price_per_card,
-        grade: itemData.wanted_grade,
-        genre: itemData.wanted_genre,
+        grade: itemData.grade,
+        genre: itemData.genre,
+        wantedGrade: itemData.wanted_grade,
+        wantedGenre: itemData.wanted_genre,
         wantedDescription: itemData.wanted_description,
         sellerId: itemData.sellerId,
       },
@@ -195,6 +197,9 @@ export const marketRepository = {
   findMyCard: async (myCardId) => {
     return await prisma.myCard.findUnique({
       where: { id: myCardId },
+      include: {
+        photoCard: true,
+      },
     });
   },
 
