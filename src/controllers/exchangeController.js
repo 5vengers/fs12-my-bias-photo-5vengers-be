@@ -1,10 +1,13 @@
 import { exchangeService } from '../services/exchangeService.js';
 
 const create = async (req, res) => {
+  const { itemId } = req.validated.params;
+  const { offeredCardId } = req.validated.body;
+
   const result = await exchangeService.create({
     proposerId: req.user.userId,
-    marketItemId: req.params.itemId,
-    offeredCardId: req.body.offeredCardId,
+    marketItemId: itemId,
+    offeredCardId,
   });
 
   return res.status(201).json({ success: true, data: result });
@@ -21,8 +24,10 @@ const findReceived = async (req, res) => {
 };
 
 const approve = async (req, res) => {
+  const { exchangeId } = req.validated.params;
+
   const result = await exchangeService.approve({
-    exchangeId: req.params.exchangeId,
+    exchangeId,
     sellerId: req.user.userId,
   });
 
@@ -30,8 +35,10 @@ const approve = async (req, res) => {
 };
 
 const reject = async (req, res) => {
+  const { exchangeId } = req.validated.params;
+
   const result = await exchangeService.reject({
-    exchangeId: req.params.exchangeId,
+    exchangeId,
     sellerId: req.user.userId,
   });
 
@@ -42,8 +49,10 @@ const reject = async (req, res) => {
 };
 
 const cancel = async (req, res) => {
+  const { exchangeId } = req.validated.params;
+
   const result = await exchangeService.cancel({
-    exchangeId: req.params.exchangeId,
+    exchangeId,
     proposerId: req.user.userId,
   });
 
