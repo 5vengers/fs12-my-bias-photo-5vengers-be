@@ -144,8 +144,7 @@ export const marketService = {
       itemData.myCardId,
       userId,
     );
-    console.log('itemData', itemData);
-
+    ㄴ;
     if (itemData.quantity > maxAvailableQuantity) {
       throw new AppError(
         '보유 수량보다 많은 수를 등록할 수 없습니다.',
@@ -155,7 +154,6 @@ export const marketService = {
     }
 
     const myCard = await marketRepository.findMyCard(itemData.myCardId);
-    console.log(myCard);
     return marketRepository.createMarketItem({
       ...itemData,
       sellerId: userId,
@@ -259,12 +257,8 @@ export const marketService = {
 
   //등록가능 최대수
   getMyCardMaxQuantity: async (userId, myCardId) => {
-    console.log('서비스로 전달된 userId:', userId);
-    console.log('서비스로 전달된 myCardId:', myCardId);
     const myCard = await marketRepository.findMyCard(myCardId);
-    if (myCard) {
-      console.log('DB에서 찾은 카드의 ownerId:', myCard.ownerId);
-    }
+
     if (!myCard) {
       throw new AppError(
         '보유하고 있지 않은 카드입니다.',
