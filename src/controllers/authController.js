@@ -61,7 +61,7 @@ const refresh = asyncHandler(async (req, res) => {
 });
 
 const googleCallback = asyncHandler(async (req, res) => {
-  const { user } = req.oauthPayload;
+  const { user, isNewUser } = req.oauthPayload;
   const { refreshToken } = await authService.oauthLogin(user);
   setRefreshTokenCookie(res, refreshToken);
   res.redirect(
