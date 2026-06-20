@@ -3,7 +3,7 @@ import myCardService from '../services/myCardService.js';
 const getMyGalleryCards = async (req, res, next) => {
   const { userId } = req.user;
 
-  const query = req.query;
+  const query = req.validated.query;
 
   const result = await myCardService.getMyGallery(userId, query);
 
@@ -29,7 +29,7 @@ const getMyGalleryCount = async (req, res, next) => {
 const getMySalesCards = async (req, res, next) => {
   const { userId } = req.user;
 
-  const query = req.query;
+  const query = req.validated.query;
 
   const result = await myCardService.getMySales(userId, query);
 

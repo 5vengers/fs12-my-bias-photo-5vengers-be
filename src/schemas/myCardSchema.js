@@ -68,7 +68,7 @@ export const createCardSchema = z
   })
   .strict();
 
-export const getmyCardQuerySchema = z.object({
+export const getMyCardQuerySchema = z.object({
   keyword: z
     .string({
       error: (issue) => {
@@ -96,8 +96,25 @@ export const getmyCardQuerySchema = z.object({
       },
     })
     .optional(),
+  saleType: z
+    .enum(['SELLING', 'EXCHANGE'], {
+      error: (issue) => {
+        if (issue.code === 'invalid_value') {
+          return '존재하지 않는 판매 타입입니다.';
+        }
+      },
+    })
+    .optional(),
+  status: z
+    .enum(['SOLD_OUT', 'SELLING'], {
+      error: (issue) => {
+        if (issue.code === 'invalid_value') {
+          return '존재하지 않는 재고 타입입니다.';
+        }
+      },
+    })
+    .optional(),
   page: z.coerce.number().min(1).optional(),
-  pageSize: z.coerce.number().min(1).optional(),
 });
 
 export const myCardIdParamsSchema = z.strictObject({

@@ -7,7 +7,7 @@ import { upload } from '../middlewares/uploadHandler.js';
 
 import {
   createCardSchema,
-  getmyCardQuerySchema,
+  getMyCardQuerySchema,
 } from '../schemas/myCardSchema.js';
 import myCardController from '../controllers/myCardController.js';
 
@@ -19,7 +19,7 @@ const router = Router();
 router.get(
   '/gallery',
   authenticate,
-  validate(getmyCardQuerySchema, 'query'),
+  validate(getMyCardQuerySchema, 'query'),
   asyncHandler(myCardController.getMyGalleryCards),
 );
 
@@ -34,6 +34,7 @@ router.get(
 router.get(
   '/sales',
   authenticate,
+  validate(getMyCardQuerySchema, 'query'),
   asyncHandler(myCardController.getMySalesCards),
 );
 
