@@ -27,7 +27,9 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.login(req.validated.body);
+  const { user, accessToken, refreshToken } = await authService.login(
+    req.validated.body,
+  );
   setRefreshTokenCookie(res, refreshToken);
   res.json({
     success: true,
@@ -62,7 +64,9 @@ const googleCallback = asyncHandler(async (req, res) => {
   const { user } = req.oauthPayload;
   const { refreshToken } = await authService.oauthLogin(user);
   setRefreshTokenCookie(res, refreshToken);
-  res.redirect(`${FRONTEND_URL}/auth/callback`);
+  res.redirect(
+    `${FRONTEND_URL}/auth/callback${isNewUser ? '?isNewUser=true' : ''}`,
+  );
 });
 
 export default {
