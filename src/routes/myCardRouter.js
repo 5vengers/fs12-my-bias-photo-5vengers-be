@@ -1,21 +1,62 @@
-import express from 'express';
-import { myCardController } from '../controllers/myCardController.js';
+import { Router } from 'express';
+
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { validate } from '../middlewares/validate.js';
-import { myCardIdParamsSchema } from '../schemas/myGallerySchema.js';
+import { upload } from '../middlewares/uploadHandler.js';
 
-const router = express.Router();
+import {
+  createCardSchema,
+  getmyCardQuerySchema,
+} from '../schemas/myCardSchema.js';
+import myCardController from '../controllers/myCardController.js';
 
-// 나의 포토카드 전체 조회
-router.get('/my-cards', authenticate, asyncHandler(myCardController.getMyCards));
+const router = Router();
 
-// 나의 포토카드 단건 조회
+// 나의 판매 포토카드 조회
+
+// 마이갤러리 조회
 router.get(
-  '/my-cards/:myCardId',
+  '/gallery',
   authenticate,
-  validate(myCardIdParamsSchema, 'params'),
-  asyncHandler(myCardController.getMyCardById),
+  validate(getmyCardQuerySchema, 'query'),
+  asyncHandler(myCardController.getMyGalleryCards),
+);
+
+//
+router.get(
+  '/gallery/card-count',
+  authenticate,
+  asyncHandler(myCardController.getMyGalleryCount),
+);
+
+// 나의 판매 포토카드 조회
+router.get(
+  '/sales',
+  authenticate,
+  asyncHandler(myCardController.getMySalesCards),
+);
+
+router.get(
+  '/sales/card-count',
+  authenticate,
+  asyncHandler(myCardController.getMySalesCount),
+);
+
+// 포토카드 생성
+router.post(
+  '/create',
+  authenticate,
+  upload.single('imageUrl'),
+  validate(createCardSchema),
+  asyncHandler(myCardController.createPhotoCard),
+);
+
+// 카드 생성 횟수 조회
+router.get(
+  '/creation-log',
+  authenticate,
+  asyncHandler(myCardController.getLog),
 );
 
 export default router;

@@ -68,7 +68,7 @@ export const createCardSchema = z
   })
   .strict();
 
-export const getMyGalleryQuerySchema = z.object({
+export const getmyCardQuerySchema = z.object({
   keyword: z
     .string({
       error: (issue) => {

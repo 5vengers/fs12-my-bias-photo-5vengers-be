@@ -3,8 +3,11 @@ import express from 'express';
 import { marketController } from '../controllers/marketController.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { validate } from '../middlewares/validate.js';
-import { createMarketItemSchema, itemIdParamsSchema } from '../schemas/marketSchema.js';
-import { myCardIdParamsSchema } from '../schemas/myGallerySchema.js';
+import {
+  createMarketItemSchema,
+  itemIdParamsSchema,
+} from '../schemas/marketSchema.js';
+import { myCardIdParamsSchema } from '../schemas/myCardSchema.js';
 import { authenticate } from '../middlewares/authenticate.js';
 
 const router = express.Router();
