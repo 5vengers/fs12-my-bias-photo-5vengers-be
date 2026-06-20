@@ -68,58 +68,62 @@ export const createCardSchema = z
   })
   .strict();
 
-export const getMyCardQuerySchema = z.object({
-  keyword: z
-    .string({
-      error: (issue) => {
-        if (issue.code === 'invalid_type') {
-          return '키워드는 문자이어야 합니다.';
-        }
-      },
-    })
-    .optional(),
-  genre: z
-    .enum(Genre, {
-      error: (issue) => {
-        if (issue.code === 'invalid_value') {
-          return '존재하지 않는 장르입니다.';
-        }
-      },
-    })
-    .optional(),
-  grade: z
-    .enum(CardGrade, {
-      error: (issue) => {
-        if (issue.code === 'invalid_value') {
-          return '존재하지 않는 등급입니다.';
-        }
-      },
-    })
-    .optional(),
-  saleType: z
-    .enum(['SELLING', 'EXCHANGE'], {
-      error: (issue) => {
-        if (issue.code === 'invalid_value') {
-          return '존재하지 않는 판매 타입입니다.';
-        }
-      },
-    })
-    .optional(),
-  status: z
-    .enum(['SOLD_OUT', 'SELLING'], {
-      error: (issue) => {
-        if (issue.code === 'invalid_value') {
-          return '존재하지 않는 재고 타입입니다.';
-        }
-      },
-    })
-    .optional(),
-  page: z.coerce.number().min(1).optional(),
-});
+export const getMyCardQuerySchema = z
+  .object({
+    keyword: z
+      .string({
+        error: (issue) => {
+          if (issue.code === 'invalid_type') {
+            return '키워드는 문자이어야 합니다.';
+          }
+        },
+      })
+      .optional(),
+    genre: z
+      .enum(Genre, {
+        error: (issue) => {
+          if (issue.code === 'invalid_value') {
+            return '존재하지 않는 장르입니다.';
+          }
+        },
+      })
+      .optional(),
+    grade: z
+      .enum(CardGrade, {
+        error: (issue) => {
+          if (issue.code === 'invalid_value') {
+            return '존재하지 않는 등급입니다.';
+          }
+        },
+      })
+      .optional(),
+    saleType: z
+      .enum(['SELLING', 'EXCHANGE'], {
+        error: (issue) => {
+          if (issue.code === 'invalid_value') {
+            return '존재하지 않는 판매 타입입니다.';
+          }
+        },
+      })
+      .optional(),
+    status: z
+      .enum(['SOLD_OUT', 'SELLING'], {
+        error: (issue) => {
+          if (issue.code === 'invalid_value') {
+            return '존재하지 않는 재고 타입입니다.';
+          }
+        },
+      })
+      .optional(),
+    page: z.coerce.number().min(1).optional(),
+  })
+  .strict();
 
-export const myCardIdParamsSchema = z.strictObject({
-  myCardId: z.coerce
-    .number({ invalid_type_error: '유효하지 않은 카드 ID입니다.' })
-    .int('카드 ID는 정수여야 합니다.')
-    .positive('카드 ID는 양의 정수여야 합니다.'),
-});
+export const myCardIdParamsSchema = z
+  .strictObject({
+    myCardId: z.coerce
+      .number({ invalid_type_error: '유효하지 않은 카드 ID입니다.' })
+      .int('카드 ID는 정수여야 합니다.')
+      .positive('카드 ID는 양의 정수여야 합니다.'),
+  })
+  .strict();
