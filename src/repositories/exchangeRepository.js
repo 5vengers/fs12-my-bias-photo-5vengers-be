@@ -9,6 +9,18 @@ const findMarketItem = async (marketItemId) => {
   });
 };
 
+const findById = async (id) => {
+  return prisma.exchangeProposal.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      proposerId: true,
+      marketItemId: true,
+      marketItem: { select: { sellerId: true } },
+    },
+  });
+};
+
 const findMyCard = async (myCardId) => {
   return prisma.myCard.findUnique({
     where: { id: myCardId },
@@ -436,6 +448,7 @@ const cancel = async ({ exchangeId, proposerId }) => {
 
 export const exchangeRepository = {
   findMarketItem,
+  findById,
   findMyCard,
   getActiveSellingQuantity,
   findWaitingExchange,
