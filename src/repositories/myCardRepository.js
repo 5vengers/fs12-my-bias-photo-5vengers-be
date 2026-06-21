@@ -222,6 +222,11 @@ const findSalesCards = async (
             quantity: true,
             soldQuantity: true,
             createdAt: true,
+            seller: {
+              select: {
+                nickname: true,
+              },
+            },
             myCard: {
               select: {
                 photoCard: {
@@ -252,6 +257,11 @@ const findSalesCards = async (
             createdAt: true,
             offeredCard: {
               select: {
+                owner: {
+                  select: {
+                    nickname: true,
+                  },
+                },
                 photoCard: {
                   select: {
                     name: true,
@@ -269,12 +279,13 @@ const findSalesCards = async (
   ]);
 
   const sellingData = marketItems.map(
-    ({ myCard, quantity, soldQuantity, ...rest }) => ({
+    ({ myCard, seller, quantity, soldQuantity, ...rest }) => ({
       id: rest.id,
       saleType: SALE_TYPE.SELLING,
       pricePerCard: rest.pricePerCard,
       remainingQuantity: quantity - soldQuantity,
       createdAt: rest.createdAt,
+      nickname: seller.nickname,
       ...myCard.photoCard,
     }),
   );
@@ -295,9 +306,10 @@ const findSalesCards = async (
   const exchangeData = exchangeProposals.map(({ offeredCard, ...rest }) => ({
     id: rest.id,
     saleType: SALE_TYPE.EXCHANGE,
-    pricePerCard: null, // 교환이므로 가격 없음
-    remainingQuantity: 1, // 교환 제시는 항상 1장
+    pricePerCard: null,
+    remainingQuantity: 1,
     createdAt: rest.createdAt,
+    nickname: offeredCard.owner.nickname,
     ...offeredCard.photoCard,
   }));
 
