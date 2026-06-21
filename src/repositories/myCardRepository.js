@@ -303,17 +303,15 @@ const findSalesCards = async (
     };
   }
 
-  const exchangeData = exchangeProposals.map(
-    ({ offeredCard, marketItem, ...rest }) => ({
-      id: rest.id,
-      saleType: SALE_TYPE.EXCHANGE,
-      pricePerCard: null,
-      remainingQuantity: 1,
-      createdAt: rest.createdAt,
-      nickname: offeredCard.owner.nickname,
-      ...offeredCard.photoCard,
-    }),
-  );
+  const exchangeData = exchangeProposals.map(({ offeredCard, ...rest }) => ({
+    id: rest.id,
+    saleType: SALE_TYPE.EXCHANGE,
+    pricePerCard: null,
+    remainingQuantity: 1,
+    createdAt: rest.createdAt,
+    nickname: offeredCard.owner.nickname,
+    ...offeredCard.photoCard,
+  }));
 
   const merged = [...sellingData, ...exchangeData].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
