@@ -109,6 +109,31 @@ const reject = async ({ exchangeId, sellerId }) => {
 const cancel = ({ exchangeId, proposerId }) =>
   exchangeRepository.cancel({ exchangeId, proposerId });
 
+const findOne = async ({ exchangeId, userId }) => {
+  const proposal = await exchangeRepository.findById(exchangeId);
+
+  if (!proposal) {
+    throw new AppError(
+      '교환 신청을 찾을 수 없습니다.',
+      404,
+      ERROR_CODES.EXCHANGE_NOT_FOUND,
+    );
+  }
+
+  const isProposer = proposal.proposerId === userId;
+  const isSeller = proposal.marketItem.sellerId === userId;
+
+  if (!isProposer && !isSeller) {
+    throw new AppError(
+      '해당 교환 신청에 접근할 권한이 없습니다.',
+      403,
+      ERROR_CODES.FORBIDDEN,
+    );
+  }
+
+  return { marketItemId: proposal.marketItemId };
+};
+
 export const exchangeService = {
   create,
   findSent,
@@ -116,4 +141,5 @@ export const exchangeService = {
   approve,
   reject,
   cancel,
+  findOne,
 };

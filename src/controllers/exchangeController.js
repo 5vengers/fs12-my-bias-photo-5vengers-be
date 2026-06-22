@@ -62,6 +62,17 @@ const cancel = async (req, res) => {
   });
 };
 
+const findOne = async (req, res) => {
+  const { exchangeId } = req.validated.params;
+
+  const result = await exchangeService.findOne({
+    exchangeId,
+    userId: req.user.userId,
+  });
+
+  return res.json({ success: true, data: result });
+};
+
 export const exchangeController = {
   create,
   findSent,
@@ -69,4 +80,5 @@ export const exchangeController = {
   approve,
   reject,
   cancel,
+  findOne,
 };

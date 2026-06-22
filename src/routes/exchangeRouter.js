@@ -52,4 +52,11 @@ router.get(
   asyncHandler(exchangeController.findReceived),
 );
 
+router.get(
+  '/exchanges/:exchangeId',
+  authenticate,
+  validate(exchangeIdParamSchema, 'params'),
+  asyncHandler(exchangeController.findOne),
+);
+
 export default router;

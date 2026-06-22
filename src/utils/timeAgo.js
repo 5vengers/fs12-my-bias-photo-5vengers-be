@@ -32,10 +32,10 @@ export const formatTimeAgo = (createdAt) => {
   const weeks = Math.floor(diff / WEEK);
   if (weeks <= 3) return `${weeks}주일 전`;
 
-  const months = Math.floor(diff / MONTH);
+  const months = Math.max(1, Math.floor(diff / MONTH));
   if (months < 12) return `${months}개월 전`;
 
-  const years = Math.floor(diff / YEAR);
+  const years = Math.max(1, Math.floor(diff / YEAR));
   return `${years}년 전`;
 };
 
