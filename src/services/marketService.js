@@ -177,62 +177,68 @@ export const marketService = {
   },
 
   updateMarketItem: async (currentUserId, marketItemId, updateData) => {
-    const marketItem = await marketRepository.findMarketItemById(marketItemId);
-    if (!marketItem) {
-      throw new AppError(
-        '존재하지 않는 판매글입니다.',
-        404,
-        ERROR_CODES.NOT_FOUND,
+    return await prisma.$transaction(async (tx) => {
+      const marketItem = await marketRepository.findMarketItemById(
+        marketItemId,
       );
-    }
+      if (!marketItem) {
+        throw new AppError(
+          '존재하지 않는 판매글입니다.',
+          404,
+          ERROR_CODES.NOT_FOUND,
+        );
+      }
 
-    //본인 확인
-    if (currentUserId !== marketItem.sellerId) {
-      throw new AppError(
-        '작성자 수정 권한이 없습니다.',
-        403,
-        ERROR_CODES.FORBIDDEN,
+      //본인 확인
+      if (currentUserId !== marketItem.sellerId) {
+        throw new AppError(
+          '작성자 수정 권한이 없습니다.',
+          403,
+          ERROR_CODES.FORBIDDEN,
+        );
+      }
+
+      //수량 하한선 체크
+      if (updateData.quantity < marketItem.soldQuantity) {
+        throw new AppError(
+          `이미 ${marketItem.soldQuantity}장이 판매 완료되어, 전체 수량을 그 미만으로 줄일 수 없습니다.`,
+          400,
+          ERROR_CODES.VALIDATION_ERROR,
+        );
+      }
+      //수량 상한선 체크
+      const maxAvailableQuantity = await calculateMaxAvailableQuantity(
+        tx,
+        marketItemId,
+        marketItem.myCardId,
+        currentUserId,
+        marketItem.soldQuantity,
       );
-    }
 
-    //수량 하한선 체크
-    if (updateData.quantity < marketItem.soldQuantity) {
-      throw new AppError(
-        `이미 ${marketItem.soldQuantity}장이 판매 완료되어, 전체 수량을 그 미만으로 줄일 수 없습니다.`,
-        400,
-        ERROR_CODES.VALIDATION_ERROR,
+      if (updateData.quantity > maxAvailableQuantity) {
+        throw new AppError(
+          '보유 수량보다 많은 수를 판매할 수 없습니다.',
+          400,
+          ERROR_CODES.VALIDATION_ERROR,
+        );
+      }
+
+      const updatedMarketItem = await marketRepository.updateMarketItem(
+        tx,
+        marketItemId,
+        updateData,
       );
-    }
-    //수량 상한선 체크
-    const maxAvailableQuantity = await calculateMaxAvailableQuantity(
-      marketItemId,
-      marketItem.myCardId,
-      currentUserId,
-      marketItem.soldQuantity,
-    );
 
-    if (updateData.quantity > maxAvailableQuantity) {
-      throw new AppError(
-        '보유 수량보다 많은 수를 판매할 수 없습니다.',
-        400,
-        ERROR_CODES.VALIDATION_ERROR,
-      );
-    }
+      if (!updatedMarketItem) {
+        throw new AppError(
+          '이미 판매된 수량보다 판매 수량을 줄일 수 없습니다.',
+          409,
+          ERROR_CODES.INSUFFICIENT_STOCK,
+        );
+      }
 
-    const updatedMarketItem = await marketRepository.updateMarketItem(
-      marketItemId,
-      updateData,
-    );
-
-    if (!updatedMarketItem) {
-      throw new AppError(
-        '이미 판매된 수량보다 판매 수량을 줄일 수 없습니다.',
-        409,
-        ERROR_CODES.INSUFFICIENT_STOCK,
-      );
-    }
-
-    return updatedMarketItem;
+      return updatedMarketItem;
+    });
   },
 
   deleteMarketItem: async (currentUserId, marketItemId) => {
@@ -279,7 +285,7 @@ export const marketService = {
 
   //등록가능 최대수
   getMyCardMaxQuantity: async (userId, myCardId) => {
-    const myCard = await marketRepository.findMyCard(myCardId);
+    const myCard = await marketRepository.findMyCard(prisma, myCardId);
 
     if (!myCard) {
       throw new AppError(
@@ -298,6 +304,7 @@ export const marketService = {
     }
 
     const activeMarketItems = await marketRepository.findActiveMarketItems(
+      prisma,
       myCardId,
     );
 

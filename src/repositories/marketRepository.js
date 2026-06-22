@@ -126,14 +126,14 @@ export const marketRepository = {
   },
 
   //판매 정보 수정
-  updateMarketItem: async (itemId, item) => {
+  updateMarketItem: async (tx, itemId, item) => {
     if (item.quantity === undefined) {
-      return prisma.marketItem.update({
+      return tx.marketItem.update({
         where: { id: itemId },
         data: item,
       });
     }
-    const updated = await prisma.marketItem.updateMany({
+    const updated = await tx.marketItem.updateMany({
       where: {
         id: itemId,
         status: 'SELLING',
@@ -148,13 +148,13 @@ export const marketRepository = {
       return null;
     }
 
-    return prisma.marketItem.findUnique({
+    return tx.marketItem.findUnique({
       where: { id: itemId },
     });
   },
 
   //판매 글 삭제(상태: DELETED로 업데이트)
-  deleteMarketItem: async (marketItemId) => {
+  deleteMarketItem: async (tx, currentUserId, marketItemId) => {
     return prisma.$transaction(async (tx) => {
       const deletedItem = await tx.marketItem.update({
         where: { id: marketItemId },
