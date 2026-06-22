@@ -1,4 +1,5 @@
 import prisma from '../config/prisma.js';
+
 const buildWhere = ({ grade, genre, soldOut, keyword }) => {
   const where = {
     ...(grade && { grade }),
@@ -108,8 +109,8 @@ export const marketRepository = {
   },
 
   //판매 등록
-  createMarketItem: async (itemData) => {
-    return await prisma.marketItem.create({
+  createMarketItem: async (tx, itemData) => {
+    return await tx.marketItem.create({
       data: {
         myCardId: itemData.myCardId,
         quantity: itemData.quantity,
@@ -125,14 +126,14 @@ export const marketRepository = {
   },
 
   //판매 정보 수정
-  updateMarketItem: async (itemId, item) => {
+  updateMarketItem: async (tx, itemId, item) => {
     if (item.quantity === undefined) {
-      return prisma.marketItem.update({
+      return tx.marketItem.update({
         where: { id: itemId },
         data: item,
       });
     }
-    const updated = await prisma.marketItem.updateMany({
+    const updated = await tx.marketItem.updateMany({
       where: {
         id: itemId,
         status: 'SELLING',
@@ -147,13 +148,13 @@ export const marketRepository = {
       return null;
     }
 
-    return prisma.marketItem.findUnique({
+    return tx.marketItem.findUnique({
       where: { id: itemId },
     });
   },
 
   //판매 글 삭제(상태: DELETED로 업데이트)
-  deleteMarketItem: async (marketItemId) => {
+  deleteMarketItem: async (tx, currentUserId, marketItemId) => {
     return prisma.$transaction(async (tx) => {
       const deletedItem = await tx.marketItem.update({
         where: { id: marketItemId },
@@ -193,9 +194,9 @@ export const marketRepository = {
     });
   },
 
-  //내 카드 조회 (마이프로필과 로직 중복시 삭제 예정)
-  findMyCard: async (myCardId) => {
-    return await prisma.myCard.findUnique({
+  //내 카드 조회
+  findMyCard: async (tx, myCardId) => {
+    return await tx.myCard.findUnique({
       where: { id: myCardId },
       include: {
         photoCard: true,
@@ -204,8 +205,8 @@ export const marketRepository = {
   },
 
   //내 판매 카드 수량 조회
-  findActiveMarketItems: async (myCardId) => {
-    return await prisma.marketItem.findMany({
+  findActiveMarketItems: async (tx, myCardId) => {
+    return await tx.marketItem.findMany({
       where: {
         myCardId: myCardId,
         status: 'SELLING',
