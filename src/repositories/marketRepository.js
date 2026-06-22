@@ -1,4 +1,5 @@
 import prisma from '../config/prisma.js';
+
 const buildWhere = ({ grade, genre, soldOut, keyword }) => {
   const where = {
     ...(grade && { grade }),
@@ -108,8 +109,8 @@ export const marketRepository = {
   },
 
   //판매 등록
-  createMarketItem: async (itemData) => {
-    return await prisma.marketItem.create({
+  createMarketItem: async (tx, itemData) => {
+    return await tx.marketItem.create({
       data: {
         myCardId: itemData.myCardId,
         quantity: itemData.quantity,
@@ -193,9 +194,9 @@ export const marketRepository = {
     });
   },
 
-  //내 카드 조회 (마이프로필과 로직 중복시 삭제 예정)
-  findMyCard: async (myCardId) => {
-    return await prisma.myCard.findUnique({
+  //내 카드 조회
+  findMyCard: async (tx, myCardId) => {
+    return await tx.myCard.findUnique({
       where: { id: myCardId },
       include: {
         photoCard: true,
@@ -204,8 +205,8 @@ export const marketRepository = {
   },
 
   //내 판매 카드 수량 조회
-  findActiveMarketItems: async (myCardId) => {
-    return await prisma.marketItem.findMany({
+  findActiveMarketItems: async (tx, myCardId) => {
+    return await tx.marketItem.findMany({
       where: {
         myCardId: myCardId,
         status: 'SELLING',
