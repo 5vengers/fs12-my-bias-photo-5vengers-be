@@ -267,5 +267,5 @@ enum RouteType {
 enum OperationType {
   INSERT
   UPDATE
-  DELETED
+  DELETE
 }
