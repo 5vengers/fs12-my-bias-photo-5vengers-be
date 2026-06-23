@@ -1,9 +1,9 @@
-# 5VENGERS (오벤져스)
-
+# :camera: 최애의 포토
+# :superhero: 5VENGERS (오벤져스)
 ([5vengers 노션 링크](https://app.notion.com/p/Part_3-Project-5vengers_Dash-board-36cf7270cef78027b9b6c04840ff285f?source=copy_link))
 
-# 팀원 구성
 
+# :astronaut: 팀원 구성
 강정민 ([Github 링크](https://github.com/jeongmin00))
 
 김나연 ([Github 링크](https://github.com/9g-g9))
@@ -14,31 +14,23 @@
 
 이상윤 ([Github 링크](https://github.com/sensertive05))
 
-# 프로젝트 소개
 
+# :rocket: 프로젝트 소개
 최애의 포토카드를 다른 사람과 교환, 판매, 구매할 수 있는 활발한 거래 사이트 제작
 
 프로젝트 기간: 2026.06.01 ~ 2026.06.24
 
-### 백엔드 배포 주소
 
-https://fs12-my-bias-photo-5vengers-be.onrender.com/
-
-# 기술 스택
-
+# :gear: 기술 스택
 Backend: Node.js, Express.js 5, Prisma ORM
-
 Database: PostgreSQL
-
 인증: JWT, Passport.js, Google OAuth 2.0, bcrypt
-
 검증 및 보안: Zod, CORS, Cookie Parser
-
 공통 Tool: GitHub, Render, ESLint, Prettier, CodeRabbit, npm, Nodemon
 
-# 팀원별 구현 기능 상세
+# :wrench: 팀원별 구현 기능 상세
 
-## 강정민
+### 강정민
 
 ### 인증 / 인가
 
@@ -80,7 +72,7 @@ Database: PostgreSQL
 - 판매 성사
 - 품절
 
-##### 알림 시스템 개선
+#### 알림 시스템 개선
 
 - 알림 생성과 SSE 전송을 `createAndSend` 단일 함수로 통합하여 트리거 로직 단순화
 - `preventDuplicate` 옵션으로 동일 `(userId, type, targetId)` 조합의 중복 알림 방지
@@ -91,9 +83,10 @@ Database: PostgreSQL
 
 - 단일 읽음 API / 전체 읽음 API 분리 구현
 - 클라이언트 낙관적 업데이트를 적용하여 서버 응답 전 미읽음 배지 즉시 감소
+  
+---
 
-
-## 김나연
+### 김나연
 
 ### 마이갤러리 조회
 
@@ -109,7 +102,9 @@ Database: PostgreSQL
 - multer - cloudinary 로 이미지 저장 및 관리
 - transaction 처리로 form 데이터 처리 중 오류 시 롤백
 
-## 김성현
+---
+
+### 김성현
 
 ### 포인트 기능
 
@@ -156,7 +151,9 @@ Database: PostgreSQL
 - 구매/교환처럼 여러 테이블이 함께 변경되는 로직에 Prisma transaction 적용
 - 중복 요청 및 잘못된 상태 변경을 방지하기 위한 상태값 검증 처리
 
-## 원세빈
+---
+
+### 원세빈
 
 ### 마켓플레이스 CRUD 기능
 
@@ -192,18 +189,21 @@ Database: PostgreSQL
 - PostgreSQL Trigger를 활용한 History 자동 기록 시스템 구현
 - INSERT, UPDATE, DELETE 발생 시 변경 이력을 자동 저장
 
-## 이상윤
+---
 
-# 파일 구조
+### 이상윤
 
+# :file_folder: 파일 구조
+
+```text
 src
 ├── config
 ├── constants
 ├── controllers
 ├── errors
 ├── libs
-│ ├── jwt.js
-│ └── sseManager.js
+│   ├── jwt.js
+│   └── sseManager.js
 ├── middlewares
 ├── repositories
 ├── routes
@@ -211,9 +211,9 @@ src
 ├── services
 ├── utils
 └── app.js
+```
 
-# 구현 서버
-
+# :globe_with_meridians: 구현 서버
 https://fs12-my-bias-photo-5vengers-be.onrender.com/
 
-# 프로젝트 회고록
+# :page_facing_up: 프로젝트 회고록
