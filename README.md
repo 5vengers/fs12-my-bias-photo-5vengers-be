@@ -1,9 +1,11 @@
 # :camera: 최애의 포토
+
 # :superhero: 5VENGERS (오벤져스)
+
 ([5vengers 노션 링크](https://app.notion.com/p/Part_3-Project-5vengers_Dash-board-36cf7270cef78027b9b6c04840ff285f?source=copy_link))
 
-
 # :astronaut: 팀원 구성
+
 강정민 ([Github 링크](https://github.com/jeongmin00))
 
 김나연 ([Github 링크](https://github.com/9g-g9))
@@ -14,14 +16,14 @@
 
 이상윤 ([Github 링크](https://github.com/sensertive05))
 
-
 # :rocket: 프로젝트 소개
+
 최애의 포토카드를 다른 사람과 교환, 판매, 구매할 수 있는 활발한 거래 사이트 제작
 
 프로젝트 기간: 2026.06.01 ~ 2026.06.24
 
-
 # :gear: 기술 스택
+
 Backend: Node.js, Express.js 5, Prisma ORM
 Database: PostgreSQL
 인증: JWT, Passport.js, Google OAuth 2.0, bcrypt
@@ -83,7 +85,7 @@ Database: PostgreSQL
 
 - 단일 읽음 API / 전체 읽음 API 분리 구현
 - 클라이언트 낙관적 업데이트를 적용하여 서버 응답 전 미읽음 배지 즉시 감소
-  
+
 ---
 
 ### 김나연
@@ -214,6 +216,9 @@ src
 ```
 
 # :globe_with_meridians: 구현 서버
+
 https://fs12-my-bias-photo-5vengers-be.onrender.com/
 
 # :page_facing_up: 프로젝트 회고록
+
+[최애의 포토 PDF]https://drive.google.com/file/d/1y_nri9NrY2pLIKHOiIrzNWxh9YxFa3ae/view?usp=drive_link
